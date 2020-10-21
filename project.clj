@@ -10,6 +10,8 @@
    [ch.qos.logback/logback-classic "1.1.3"]
    [com.stuartsierra/component "1.0.0"]
    [yada "1.2.15"]
+   [bidi "2.1.6"]
+   [ring/ring-core "1.8.2"]
    [juxt.modular/bidi "0.9.5"]
    [juxt.modular/aleph "0.1.4"]]
   :repl-options {:init-ns user}

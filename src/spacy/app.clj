@@ -6,29 +6,46 @@
    [com.stuartsierra.component :as component]
    [bidi.bidi :as bidi]
    [ring.core.protocols :refer [StreamableResponseBody]]
-   [yada.yada :as yada]))
+   [yada.yada :as yada]
+   [ring.util.response :as resp]
+   [spacy.bidi-util :as bidi-util]))
+
+(def routes
+  "Configured routes for the application as a bidi data structure"
+  ["/" {""    ::index
+        "sse" ::sse
+        "submit-session" {:post {"" ::submit-session}}}])
 
 (defn dummy-index [req]
   {:status 200
    :body "Hi!"})
 
-(defn event-resource [{:keys [mult-channel]}]
-  (yada/resource
-   {:methods
-    {:get
-     {:produces {:media-type "text/event-stream"}
-      :response (fn [ctx]
-                  (let [ch (chan 256 (map json/write-str))]
-                    (tap mult-channel ch)
-                    ch))}}}))
+(defn submit-session [req]
+  (resp/redirect (bidi/path-for routes ::index)))
+
+(defn event-resource [{{:keys [mult-channel]} :events :as system}]
+  (yada/handler
+   (yada/resource
+    {:methods
+     {:get
+      {:produces {:media-type "text/event-stream"}
+       :response (fn [ctx]
+                   (let [ch (chan 256 (map json/write-str))]
+                     (tap mult-channel ch)
+                     ch))}}})))
+
+(def handler-map
+  "Map route identifies to handler creator functions.
+  Note: each creator function which will take the initialized system as an argument
+  so that the routes can access the global application state."
+  {::index (constantly dummy-index)
+   ::submit-session (constantly submit-session)
+   ::sse   (fn [system] (event-resource system))})
 
 (defrecord App []
   bidi/RouteProvider
   (routes [component]
-    (log/info :component component)
-    ["/" {"" (bidi/handler ::index dummy-index)
-          "sse" (bidi/handler ::sse (yada/handler (event-resource (:events component))))}]))
+    (bidi-util/route-generator component routes handler-map)))
 
 (defn new-app []
   (-> (map->App {})))
-

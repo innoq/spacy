@@ -30,9 +30,12 @@
      {:get
       {:produces {:media-type "text/event-stream"}
        :response (fn [ctx]
-                   (let [ch (chan 256 (map json/write-str))]
-                     (tap mult-channel ch)
-                     ch))}}})))
+                   (let [response (:response ctx)]
+                     (let [ch (chan 256 (map json/write-str))]
+                       (tap mult-channel ch)
+                       (-> response
+                           (assoc-in [:headers "X-Accel-Buffering"] "no") ;; Turn off buffering in NGINX proxy for SSE
+                           (assoc :body ch)))))}}})))
 
 (def handler-map
   "Map route identifies to handler creator functions.

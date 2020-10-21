@@ -2,6 +2,7 @@
   (:require
    [clojure.tools.logging :as log]
    [clojure.core.async :refer (go >! <! <!! >!! buffer dropping-buffer sliding-buffer chan take! mult tap)]
+   [clojure.data.json :as json]
    [com.stuartsierra.component :as component]
    [bidi.bidi :as bidi]
    [ring.core.protocols :refer [StreamableResponseBody]]
@@ -17,7 +18,7 @@
     {:get
      {:produces {:media-type "text/event-stream"}
       :response (fn [ctx]
-                  (let [ch (chan 256)]
+                  (let [ch (chan 256 (map json/write-str))]
                     (tap mult-channel ch)
                     ch))}}}))
 

@@ -11,9 +11,9 @@
    [com.stuartsierra/component "1.0.0"]
    [yada "1.2.15"]
    [bidi "2.1.6"]
-   [ring/ring-core "1.8.2"]
    [juxt.modular/bidi "0.9.5"]
-   [juxt.modular/aleph "0.1.4"]]
+   [juxt.modular/aleph "0.1.4"]
+   [org.clojure/data.json "1.0.0"]]
   :repl-options {:init-ns user}
 
   :profiles {:dev {:dependencies [[org.clojure/tools.namespace "0.2.5"]]}})

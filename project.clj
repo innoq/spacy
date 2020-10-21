@@ -11,8 +11,7 @@
    [com.stuartsierra/component "1.0.0"]
    [yada "1.2.15"]
    [juxt.modular/bidi "0.9.5"]
-   [juxt.modular/aleph "0.1.4"]
-   [juxt.modular/maker "0.5.0"]]
+   [juxt.modular/aleph "0.1.4"]]
   :repl-options {:init-ns user}
 
   :profiles {:dev {:dependencies [[org.clojure/tools.namespace "0.2.5"]]}})

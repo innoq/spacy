@@ -28,6 +28,12 @@
       {:produces {:media-type "text/html"}
        :response response-fn}}})))
 
+(defn yada-redirect [ctx uri]
+  (let [response (:response ctx)]
+    (-> response
+        (assoc :status 302)
+        (assoc-in [:headers "Location"] uri))))
+
 (defn index [system]
   (get-resource
    (fn [ctx]
@@ -52,8 +58,53 @@
          (assoc :uris {::submit-session
                        (bidi/path-for routes ::submit-session :event-id event-id)})))))))
 
-(defn submit-session [req]
-  (resp/redirect (bidi/path-for routes ::index)))
+(defn- random-uuid []
+  (java.util.UUID/randomUUID))
+
+;; TODO - probably implemented in Crux DB
+(defn update-state [state {:keys [title description] :as session}]
+  (let [id (random-uuid)
+        current-user "joy" ;; TODO - retrieve from header
+        new-session {:sponsor current-user :session (assoc session :id id)}
+        new-facts [[id :session-title title]
+                   [id :description description]
+                   [current-user :has-suggested id]]]
+    (-> state
+        (update-in [:waiting-queue] #(concat % [new-session]))
+        (update-in [:facts] #(concat % new-facts)))))
+
+;; TODO - probably implemented as a listener for Crux
+(defn publish-events! [channel old-state new-state]
+  (let [old-count (count (:facts old-state))
+        new-facts (drop old-count (:facts new-state))]
+    (log/info :facts new-facts)
+    (go (doseq [fact new-facts]
+          (>! channel fact)))))
+
+(defn submit-session [{:keys [data events]}]
+  (yada/handler
+   (yada/resource
+    {:methods
+     {:post
+      {:consumes "application/x-www-form-urlencoded"
+       :parameters {:form {:title String :description String}}
+       :response (fn [ctx]
+                   (let [event-id (get-in ctx [:parameters :path :event-id])
+                         params  (get-in ctx [:parameters :form])
+                         session (:session data)
+                         channel (:channel events)]
+                     (let [old-state @session
+                           new-state (swap! session update-state params)]
+                       (publish-events! channel old-state new-state)
+                       (yada-redirect ctx (bidi/path-for routes ::event :event-id event-id)))))}}})))
+
+(defn stringify-uuids
+  "Workaround because clojure.data.json/write-str doesn't support UUIDs"
+  [fact]
+  (map (fn [f] (if (uuid? f) (str f) f)) fact))
+
+(defn fact-to-json [fact]
+  (json/write-str (stringify-uuids fact)))
 
 (defn sse-for-event [{{:keys [mult-channel]} :events :as system}]
   (yada/handler
@@ -63,7 +114,7 @@
       {:produces {:media-type "text/event-stream"}
        :response (fn [ctx]
                    (let [response (:response ctx)]
-                     (let [ch (chan 256 (map json/write-str))]
+                     (let [ch (chan 256 (map fact-to-json))]
                        (tap mult-channel ch)
                        (-> response
                            (assoc-in [:headers "X-Accel-Buffering"] "no") ;; Turn off buffering in NGINX proxy for SSE
@@ -75,7 +126,7 @@
   so that the routes can access the global application state."
   {::index (fn [system] (index system))
    ::event (fn [system] (show-event system))
-   ::submit-session (constantly submit-session)
+   ::submit-session (fn [system] (submit-session system))
    ::sse   (fn [system] (sse-for-event system))})
 
 (defrecord App []

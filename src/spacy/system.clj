@@ -48,7 +48,7 @@
    :events (new-events)
    :app (component/using
          (app/new-app)
-         [:events])
+         [:events :data])
    :router  (component/using
              (new-router)
              [:app])

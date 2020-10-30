@@ -14,29 +14,41 @@
 (def routes
   "Configured routes for the application as a bidi data structure"
   ["/" {""    ::index
-        "sse" ::sse
-        "submit-session" {:post {"" ::submit-session}}}])
+        [:event-id "/"]  {""   ::event
+                          "sse" ::sse
+                          "submit-session" {:post {"" ::submit-session}}}}])
+
+(defn get-resource
+  "Wrapper for yada resource"
+  [response-fn]
+  (yada/handler
+   (yada/resource
+    {:methods
+     {:get
+      {:produces {:media-type "text/html"}
+       :response response-fn}}})))
 
 (defn index [system]
-  {:status 200
-   :body (hiccup/html
-          [:ul [:li [:a {:href "/dezember-2020-strategie-event"} "Strategie Event Open Space 2020"]]])})
+  (get-resource
+   (fn [ctx]
+     (hiccup/html
+      [:ul [:li [:a {:href (bidi/path-for routes ::event :event-id "dezember-2020-strategie-event")} "Strategie Event Open Space 2020"]]]))))
 
-(defn show-session [{:keys [data]}]
-  (let [session (deref (:session data))]
-    {:status 200
-     :body (hiccup/html
-            [:h1 "Strategie Event Open Space 2020"]
-            [:waiting-queue
-             [:ol (for [el (:waiting-queue session)]
-                    [:li [:details [:summary (str (:title (:session el)) " - " (:sponsor el))]
-                          (:description (:session el))]])]])}))
-
+(defn show-event [{:keys [data]}]
+  (get-resource
+   (fn [ctx]
+     (let [session (deref (:session data))]
+       (hiccup/html
+        [:h1 "Strategie Event Open Space 2020"]
+        [:waiting-queue
+         [:ol (for [el (:waiting-queue session)]
+                [:li [:details [:summary (str (:title (:session el)) " - " (:sponsor el))]
+                      (:description (:session el))]])]])))))
 
 (defn submit-session [req]
   (resp/redirect (bidi/path-for routes ::index)))
 
-(defn event-resource [{{:keys [mult-channel]} :events :as system}]
+(defn sse-for-event [{{:keys [mult-channel]} :events :as system}]
   (yada/handler
    (yada/resource
     {:methods
@@ -50,20 +62,14 @@
                            (assoc-in [:headers "X-Accel-Buffering"] "no") ;; Turn off buffering in NGINX proxy for SSE
                            (assoc :body ch)))))}}})))
 
-;; POST /suggest-session
-(defn add-to-line [req]
-  ;; ZUSTAND ANPASSEN
-  ;; EVENT -> SSE
-  ;; Redirect "/"
-  )
-
 (def handler-map
   "Map route identifies to handler creator functions.
   Note: each creator function which will take the initialized system as an argument
   so that the routes can access the global application state."
   {::index (fn [system] (index system))
+   ::event (fn [system] (show-event system))
    ::submit-session (constantly submit-session)
-   ::sse   (fn [system] (event-resource system))})
+   ::sse   (fn [system] (sse-for-event system))})
 
 (defrecord App []
   bidi/RouteProvider

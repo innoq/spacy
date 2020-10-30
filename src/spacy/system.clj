@@ -23,7 +23,7 @@
 
   (stop  [component]
     (let [session (:session component)]
-      (spit "session.edn" (print-str @session))
+      (spit "session.edn" (with-out-str (prn @session)))
       (dissoc component :session))))
 
 (defn new-data []

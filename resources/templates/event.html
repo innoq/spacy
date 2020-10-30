@@ -1,0 +1,88 @@
+{% extends "templates/base.html" %}
+{% block title %}
+{{session-name}}
+{% endblock %}
+{% block body %}
+
+<main data-current-user="{{current-user}}">
+    <h1>{{session-name}}</h1>
+
+    <first-of-line>
+        <h2>Podium</h2>
+        {% if next-up %}
+
+        <details id="{{next-up.session-id}}">
+            <summary>{{next-up.session.title}} - {{next-up.sponsor}}</summary>
+            {{next-up.session.description}}
+        </details>
+
+        {% endif %}
+    </first-of-line>
+    <bulletin-board>
+        <h2>Session Plan</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Room</th>
+                    {% for time in times %}
+                    <th>{{time}}</th>
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for room in rooms %}
+                <tr>
+                    <th>{{room}}</th>
+                    {% for time in times %}
+                    <td>
+                        {% for slot in scheduled %}
+
+                        {% ifequal room slot.room %}
+                        {% ifequal time slot.time %}
+
+                        <details id="{{session.session-id}}">
+                            <summary>
+                                {{ slot.session.title }} - {{ slot.sponsor }}
+                            </summary>
+                            {{ slot.session.description }}
+                        </details>
+
+                        {% endifequal %}
+                        {% endifequal %}
+
+                        {% endfor %}
+                    </td>
+                    {% endfor %}
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </bulletin-board>
+    <waiting-queue>
+        <h2>Queue</h2>
+        <ol>
+            {% for item in waiting-queue %}
+            <li>
+                <details id="{{session.session-id}}">
+                    <summary>
+                        {{item.session.title}} - {{item.sponsor}}
+                    </summary>
+                    {{item.session.description}}
+                </details>
+            </li>
+            {% endfor %}
+        </ol>
+        <form method="POST" action="{{uris.spacy..app/submit-session}}">
+            <label>
+                Title
+                <input type="text" name="title" required>
+            </label>
+            <label>
+                Description
+                <textarea name="description" required></textarea>
+            </label>
+            <button type="submit">Submit Session</button>
+        </form>
+    </waiting-queue>
+</main>
+{% endblock %}

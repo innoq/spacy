@@ -1,0 +1,15 @@
+{% extends "templates/base.html" %}
+{% block title %}Open Spaces{% endblock %}
+{% block body %}
+
+<main>
+    <h1>Open Spaces</h1>
+
+    <ul>
+        {% for link in links %}
+        <li><a href="{{link.href}}">{{link.text}}</a></li>
+        {% endfor %}
+    </ul>
+</main>
+
+{% endblock %}

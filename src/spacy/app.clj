@@ -7,7 +7,7 @@
    [bidi.bidi :as bidi]
    [ring.core.protocols :refer [StreamableResponseBody]]
    [yada.yada :as yada]
-   [hiccup.core :as hiccup]
+   [selmer.parser :as selmer]
    [ring.util.response :as resp]
    [spacy.bidi-util :as bidi-util]))
 
@@ -31,19 +31,26 @@
 (defn index [system]
   (get-resource
    (fn [ctx]
-     (hiccup/html
-      [:ul [:li [:a {:href (bidi/path-for routes ::event :event-id "dezember-2020-strategie-event")} "Strategie Event Open Space 2020"]]]))))
+     (selmer/render-file
+      "templates/index.html"
+      {:links [{:href (bidi/path-for routes ::event :event-id "dezember-2020-strategie-event")
+                :text "Strategie Event Open Space 2020"}]}))))
 
 (defn show-event [{:keys [data]}]
   (get-resource
    (fn [ctx]
-     (let [session (deref (:session data))]
-       (hiccup/html
-        [:h1 "Strategie Event Open Space 2020"]
-        [:waiting-queue
-         [:ol (for [el (:waiting-queue session)]
-                [:li [:details [:summary (str (:title (:session el)) " - " (:sponsor el))]
-                      (:description (:session el))]])]])))))
+     (let [session (deref (:session data))
+           event-id (get-in ctx [:parameters :path :event-id])]
+       (selmer/render-file
+        "templates/event.html"
+        (->
+         session
+         (assoc :session-name "Strategie Event Open Space 2020")
+         (assoc :current-user "joy") ;; TODO - replace with user from header
+         (assoc :next-up (first (:waiting-queue session)))
+         (assoc :waiting-queue (rest (:waiting-queue session)))
+         (assoc :uris {::submit-session
+                       (bidi/path-for routes ::submit-session :event-id event-id)})))))))
 
 (defn submit-session [req]
   (resp/redirect (bidi/path-for routes ::index)))

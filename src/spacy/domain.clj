@@ -46,6 +46,9 @@
                 ::room
                 ::time]))
 
+(s/def ::sponsor
+  string?)
+
 (comment
   (defn- random-uuid []
     (java.util.UUID/randomUUID))

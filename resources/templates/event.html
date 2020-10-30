@@ -11,7 +11,7 @@
         <h2>Podium</h2>
         {% if next-up %}
 
-        <details id="{{next-up.session-id}}">
+        <details id="{{next-up.session.session-id}}">
             <summary>{{next-up.session.title}} - {{next-up.sponsor}}</summary>
             {{next-up.session.description}}
         </details>
@@ -40,7 +40,7 @@
                         {% ifequal room slot.room %}
                         {% ifequal time slot.time %}
 
-                        <details id="{{session.session-id}}">
+                        <details id="{{slot.session.session-id}}">
                             <summary>
                                 {{ slot.session.title }} - {{ slot.sponsor }}
                             </summary>
@@ -63,7 +63,7 @@
         <ol>
             {% for item in waiting-queue %}
             <li>
-                <details id="{{session.session-id}}">
+                <details id="{{item.session.session-id}}">
                     <summary>
                         {{item.session.title}} - {{item.sponsor}}
                     </summary>

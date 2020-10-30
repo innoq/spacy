@@ -11,6 +11,7 @@
    [com.stuartsierra/component "1.0.0"]
    [yada "1.2.15"]
    [bidi "2.1.6"]
+   [hiccup "1.0.5"]
    [juxt.modular/bidi "0.9.5"]
    [juxt.modular/aleph "0.1.4"]
    [org.clojure/data.json "1.0.0"]]

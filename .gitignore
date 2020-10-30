@@ -11,4 +11,3 @@ pom.xml.asc
 /.prepl-port
 .hgignore
 .hg/
-session.edn

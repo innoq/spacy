@@ -7,6 +7,7 @@
    [bidi.bidi :as bidi]
    [ring.core.protocols :refer [StreamableResponseBody]]
    [yada.yada :as yada]
+   [hiccup.core :as hiccup]
    [ring.util.response :as resp]
    [spacy.bidi-util :as bidi-util]))
 
@@ -16,9 +17,21 @@
         "sse" ::sse
         "submit-session" {:post {"" ::submit-session}}}])
 
-(defn dummy-index [req]
+(defn index [system]
   {:status 200
-   :body "Hi!"})
+   :body (hiccup/html
+          [:ul [:li [:a {:href "/dezember-2020-strategie-event"} "Strategie Event Open Space 2020"]]])})
+
+(defn show-session [{:keys [data]}]
+  (let [session (deref (:session data))]
+    {:status 200
+     :body (hiccup/html
+            [:h1 "Strategie Event Open Space 2020"]
+            [:waiting-queue
+             [:ol (for [el (:waiting-queue session)]
+                    [:li [:details [:summary (str (:title (:session el)) " - " (:sponsor el))]
+                          (:description (:session el))]])]])}))
+
 
 (defn submit-session [req]
   (resp/redirect (bidi/path-for routes ::index)))
@@ -37,11 +50,18 @@
                            (assoc-in [:headers "X-Accel-Buffering"] "no") ;; Turn off buffering in NGINX proxy for SSE
                            (assoc :body ch)))))}}})))
 
+;; POST /suggest-session
+(defn add-to-line [req]
+  ;; ZUSTAND ANPASSEN
+  ;; EVENT -> SSE
+  ;; Redirect "/"
+  )
+
 (def handler-map
   "Map route identifies to handler creator functions.
   Note: each creator function which will take the initialized system as an argument
   so that the routes can access the global application state."
-  {::index (constantly dummy-index)
+  {::index (fn [system] (index system))
    ::submit-session (constantly submit-session)
    ::sse   (fn [system] (event-resource system))})
 

@@ -14,7 +14,8 @@
    [hiccup "1.0.5"]
    [juxt.modular/bidi "0.9.5"]
    [juxt.modular/aleph "0.1.4"]
-   [org.clojure/data.json "1.0.0"]]
+   [org.clojure/data.json "1.0.0"]
+   [javax.xml.bind/jaxb-api "2.4.0-b180830.0359"]]
   :repl-options {:init-ns user}
 
   :profiles {:dev {:dependencies [[org.clojure/tools.namespace "0.2.5"]]}})

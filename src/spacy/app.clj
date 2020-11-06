@@ -2,7 +2,7 @@
   (:require
    [clojure.tools.logging :as log]
    [clojure.core.async :refer (go >! <! <!! >!! buffer dropping-buffer sliding-buffer chan take! mult tap)]
-   [clojure.data.json :as json]
+   [cheshire.core :as json]
    [com.stuartsierra.component :as component]
    [bidi.bidi :as bidi]
    [ring.core.protocols :refer [StreamableResponseBody]]
@@ -55,7 +55,9 @@
          (assoc :current-user "joy") ;; TODO - replace with user from header
          (assoc :next-up (first (:waiting-queue session)))
          (assoc :waiting-queue (rest (:waiting-queue session)))
-         (assoc :uris {::submit-session
+         (assoc :uris {::sse
+                       (bidi/path-for routes ::sse :event-id event-id)
+                       ::submit-session
                        (bidi/path-for routes ::submit-session :event-id event-id)})))))))
 
 (defn- random-uuid []
@@ -66,9 +68,8 @@
   (let [id (random-uuid)
         current-user "joy" ;; TODO - retrieve from header
         new-session {:sponsor current-user :session (assoc session :id id)}
-        new-facts [[id :session-title title]
-                   [id :description description]
-                   [current-user :has-suggested id]]]
+        new-facts [{::fact :session-scheduled
+                    ::session {:id id :title title :description description :sponsor current-user}}]]
     (-> state
         (update-in [:waiting-queue] #(concat % [new-session]))
         (update-in [:facts] #(concat % new-facts)))))
@@ -98,14 +99,6 @@
                        (publish-events! channel old-state new-state)
                        (yada-redirect ctx (bidi/path-for routes ::event :event-id event-id)))))}}})))
 
-(defn stringify-uuids
-  "Workaround because clojure.data.json/write-str doesn't support UUIDs"
-  [fact]
-  (map (fn [f] (if (uuid? f) (str f) f)) fact))
-
-(defn fact-to-json [fact]
-  (json/write-str (stringify-uuids fact)))
-
 (defn sse-for-event [{{:keys [mult-channel]} :events :as system}]
   (yada/handler
    (yada/resource
@@ -114,7 +107,7 @@
       {:produces {:media-type "text/event-stream"}
        :response (fn [ctx]
                    (let [response (:response ctx)]
-                     (let [ch (chan 256 (map fact-to-json))]
+                     (let [ch (chan 256 (map json/generate-string))]
                        (tap mult-channel ch)
                        (-> response
                            (assoc-in [:headers "X-Accel-Buffering"] "no") ;; Turn off buffering in NGINX proxy for SSE

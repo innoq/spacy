@@ -1,0 +1,24 @@
+{
+  "name": "spacy",
+  "version": "1.0.0",
+  "description": "Asset pipeline for spacy",
+  "author": "Joy Heron",
+  "license": "Apache-2.0",
+  "main": "assets/scripts/index.js",
+  "scripts": {
+    "start": "npm run compile:watch",
+    "compile:watch": "faucet --watch",
+    "compile": "faucet --compile"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/innoq/spacy.git"
+  },
+  "devDependencies": {
+    "faucet-pipeline-esnext": "^2.1.6",
+    "faucet-pipeline-sass": "^1.4.0"
+  },
+  "dependencies": {
+    "hijax-form": "^1.1.0"
+  }
+}

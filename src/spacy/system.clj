@@ -5,7 +5,7 @@
    [clojure.edn :as edn]
    [com.stuartsierra.component :as component]
    [bidi.bidi :as bidi]
-   [modular.bidi :refer (new-router)]
+   [modular.bidi :refer (new-router new-web-resources)]
    [modular.aleph :refer (new-webserver)]
    [spacy.app :as app]))
 
@@ -49,9 +49,10 @@
    :app (component/using
          (app/new-app)
          [:events :data])
+   :resources (new-web-resources :resource-prefix "public/")
    :router  (component/using
              (new-router)
-             [:app])
+             [:app :resources])
    :server  (component/using
              (web-server)
              [:router])))

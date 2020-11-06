@@ -8,7 +8,7 @@
     <h1>{{session-name}}</h1>
 
     <first-of-line>
-        <h2>Podium</h2>
+        <h2>Up Next</h2>
         {% if next-up %}
 
         <details id="{{next-up.session.id}}">
@@ -72,17 +72,30 @@
             </li>
             {% endfor %}
         </ol>
-        <form method="POST" action="{{uris.spacy..app/submit-session}}">
-            <label>
-                Title
-                <input type="text" name="title" required>
-            </label>
-            <label>
-                Description
-                <textarea name="description" required></textarea>
-            </label>
-            <button type="submit">Submit Session</button>
-        </form>
+        <hijax-form>
+            <form method="POST" action="{{uris.spacy..app/submit-session}}">
+                <label>
+                    Title
+                    <input type="text" name="title" required>
+                </label>
+                <label>
+                    Description
+                    <textarea name="description" required></textarea>
+                </label>
+                <button type="submit">Submit Session</button>
+            </form>
+        </hijax-form>
+        <template>
+            <li>
+                <details id>
+                    <summary>
+                        <span data-slot="title"></span> - <span data-slot="sponsor"></span>
+                    </summary>
+                    <span data-slot="description"></span>
+                </details>
+            </li>
+        </template>
     </waiting-queue>
+    <fact-handler uri="{{uris.spacy..app/sse}}"></fact-handler>
 </main>
 {% endblock %}

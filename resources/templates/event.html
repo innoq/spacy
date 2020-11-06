@@ -4,11 +4,21 @@
 {% endblock %}
 {% block body %}
 
-<main data-current-user="{{current-user}}">
+<header>
     <h1>{{session-name}}</h1>
 
-    <first-of-line>
-        <h2>Up Next</h2>
+    <nav>
+        <ul>
+            <li><a href="#up-next">Up Next</a></li>
+            <li><a href="#sessions">Sessions</a></li>
+            <li><a href="#queue">Queue</a></li>
+            <li class="js-only"><a href="#notifications">Notifications</a></li>
+        </ul>
+    </nav>
+</header>
+<main>
+    <up-next current-user="{{current-user}}">
+        <h2 id="up-next">Up Next</h2>
         {% if next-up %}
 
         <details id="{{next-up.session.id}}">
@@ -16,10 +26,16 @@
             {{next-up.session.description}}
         </details>
 
+        <p role="status">
+            {% ifequal next-up.sponsor current-user %}
+            You are currently next in line! Please select a slot for your session.
+            {% endifequal %}
+        </p>
+
         {% endif %}
-    </first-of-line>
+    </up-next>
     <bulletin-board>
-        <h2>Session Plan</h2>
+        <h2 id="sessions">Sessions</h2>
         <table>
             <thead>
                 <tr>
@@ -59,7 +75,7 @@
         </table>
     </bulletin-board>
     <waiting-queue>
-        <h2>Queue</h2>
+        <h2 id="queue">Queue</h2>
         <ol>
             {% for item in waiting-queue %}
             <li>
@@ -96,6 +112,17 @@
             </li>
         </template>
     </waiting-queue>
+    <user-notifications current-user="{{current-user}}" hidden role="log">
+        <h2 id="notifications">Notifications</h2>
+        <ul role="log"></ul>
+
+        <template data-template="session-suggested">
+            <li>
+                Your session "<span data-slot="title"></span>" was received and placed in the queue
+                <div data-slot="at"></div>
+            </li>
+        </template>
+    </user-notifications>
     <fact-handler uri="{{uris.spacy..app/sse}}"></fact-handler>
 </main>
 {% endblock %}

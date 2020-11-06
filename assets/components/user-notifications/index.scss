@@ -1,0 +1,10 @@
+user-notifications {
+  details {
+    margin-top: $spacer-sm;
+  }
+
+  [data-slot=at] {
+    color: gray;
+    font-size: $font-size-sm;
+  }
+}

@@ -68,7 +68,7 @@
   (let [id (random-uuid)
         current-user "joy" ;; TODO - retrieve from header
         new-session {:sponsor current-user :session (assoc session :id id)}
-        new-facts [{::fact :session-scheduled
+        new-facts [{::fact :session-suggested
                     ::session {:id id :title title :description description :sponsor current-user}}]]
     (-> state
         (update-in [:waiting-queue] #(concat % [new-session]))

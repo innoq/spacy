@@ -5,7 +5,7 @@ export class WaitingQueue extends HTMLElement {
     }
 
     this.form.addEventListener("submit", this.submitForm.bind(this));
-    document.body.addEventListener("session-scheduled", this.addQueuedSession.bind(this));
+    document.body.addEventListener("session-suggested", this.addQueuedSession.bind(this));
   }
 
   submitForm(ev) {
@@ -41,6 +41,8 @@ export class WaitingQueue extends HTMLElement {
   }
 
   newSession() {
-    return this.querySelector("template").content.querySelector("*").cloneNode(true);
+    return this.querySelector("template").content
+      .querySelector("*") // Find first true HTML node which will be our session markup
+      .cloneNode(true);
   }
 }

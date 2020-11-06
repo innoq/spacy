@@ -1,5 +1,11 @@
-details {
-  h2 {
-    display: inline-block;
-  }
+@import "./variables";
+
+body {
+  font-family: -apple-system, 'Open Sans', 'Helvetica Neue', sans-serif;
 }
+
+body:not(.js) .js-only {
+  display: none;
+}
+
+@import "../components/user-notifications/";

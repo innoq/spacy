@@ -7,6 +7,7 @@
    [bidi.bidi :as bidi]
    [modular.bidi :refer (new-router new-web-resources)]
    [modular.aleph :refer (new-webserver)]
+   [spacy.crux :as crux]
    [spacy.app :as app]))
 
 (defn web-server []
@@ -14,20 +15,8 @@
     (log/info "Starting server on port: " port)
     (new-webserver :port port)))
 
-;; WIP solution to not wanting to implement a Database yet
-(defrecord Data [session]
-  component/Lifecycle
-  (start [component]
-    (let [session (edn/read-string (slurp "session.edn"))]
-      (assoc component :session (atom session))))
-
-  (stop  [component]
-    (let [session (:session component)]
-      (spit "session.edn" (with-out-str (prn @session)))
-      (dissoc component :session))))
-
 (defn new-data []
-  (-> (map->Data {})))
+  (crux/map->Crux {}))
 
 (defrecord Events [channel mult-channel]
   component/Lifecycle
@@ -44,8 +33,10 @@
 
 (defn system []
   (component/system-map
-   :data (new-data)
    :events (new-events)
+   :data (component/using
+           (new-data)
+           [:events])
    :app (component/using
          (app/new-app)
          [:events :data])

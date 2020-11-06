@@ -22,7 +22,10 @@
                 ::rooms
                 ::schedule
                 ::facts
-                ::id]))
+                ::slug]))
+
+(s/def ::slug
+  string?)
 
 (s/def ::times
   (s/coll-of ::time))
@@ -49,23 +52,69 @@
 (s/def ::sponsor
   string?)
 
-(comment
-  (defn- random-uuid []
-    (java.util.UUID/randomUUID))
+(s/def ::facts
+  (s/coll-of (s/or :scheduled ::scheduled
+                   :suggested ::suggested)))
 
+(s/def ::scheduled
+  (s/keys :req [::sponsor
+                ::session
+                ::room
+                ::time
+                ::at
+                ::id]))
+
+(s/def ::suggested
+  (s/keys :req [::sponsor
+                ::session
+                ::at
+                ::id]))
+
+(s/def ::at
+  inst?)
+
+(defn- random-uuid []
+  (java.util.UUID/randomUUID))
+
+(defn suggest-session [state sponsor {:keys [title description]}]
+  (let [session-id (random-uuid)
+        fact-id (random-uuid)
+        new-session {::sponsor sponsor
+                     ::session {::id session-id
+                                ::title title
+                                ::description description
+                                ::sponsor sponsor}}
+        new-facts [(assoc new-session
+                          ::fact ::session-suggested
+                          ::at (java.util.Date.)
+                          ::id fact-id)]]
+    (-> state
+        (update ::waiting-queue conj new-session)
+        (update ::facts into new-facts))))
+
+(comment
   (s/explain
-    ::event
-    {::waiting-queue [{::sponsor "joy"
-                       ::session {::title "Responsive and Accessible"
-                                  ::description "Responsible!"
-                                  ::id (random-uuid)}}]
-     ::rooms ["Berin" "Monheim"]
-     ::times ["10:00 – 11:00"]
-     ::schedule [{::sponsor "jans"
-                  ::session {::title "Idris"
-                             ::description "Ich liebe Typen"
-                             ::id (random-uuid)}
-                  ::room "Berlin"
-                  ::time "10:00 – 11:00"}]
-     ::facts [ #_to-be-determined ]
-     ::id (random-uuid)}))
+   ::event
+   (let [sid (random-uuid)]
+     {::waiting-queue [{::sponsor "joy"
+                        ::session {::title "Responsive and Accessible"
+                                   ::description "Responsible!"
+                                   ::id (random-uuid)}}]
+      ::rooms ["Berin" "Monheim"]
+      ::times ["10:00 – 11:00"]
+      ::schedule [{::sponsor "jans"
+                   ::session {::title "Idris"
+                              ::description "Ich liebe Typen"
+                              ::id sid}
+                   ::room "Berlin"
+                   ::time "10:00 – 11:00"}]
+      ::facts [{::at #inst "2020-10-31T11:44-00:00"
+                ::fact ::session-suggested
+                ::sponsor "jans"
+                ::session {::title "Idris"
+                           ::description "Ich liebe Typen"
+                           ::id sid}
+                ::room "Berlin"
+                ::time "10:00 – 11:00"
+                ::id (random-uuid)}]
+      ::slug "dezember-2020-strategie-event"})))

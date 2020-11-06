@@ -1,6 +1,7 @@
 (ns spacy.app
   (:require
    [clojure.tools.logging :as log]
+   [clojure.walk :as walk]
    [clojure.core.async :refer (go >! <! <!! >!! buffer dropping-buffer sliding-buffer chan take! mult tap)]
    [cheshire.core :as json]
    [com.stuartsierra.component :as component]
@@ -9,6 +10,8 @@
    [yada.yada :as yada]
    [selmer.parser :as selmer]
    [ring.util.response :as resp]
+   [spacy.domain :as domain]
+   [spacy.data :as data]
    [spacy.bidi-util :as bidi-util]))
 
 (def routes
@@ -34,6 +37,15 @@
         (assoc :status 302)
         (assoc-in [:headers "Location"] uri))))
 
+(defn- drop-namespace-from-keywords [event]
+  (letfn [(no-ns [kw] (keyword (name kw)))
+          (walk [x]
+            (cond
+              (map-entry? x) (update x 0 no-ns)
+              (keyword? x) (no-ns x)
+              :else x))]
+    (walk/postwalk walk event)))
+
 (defn index [system]
   (get-resource
    (fn [ctx]
@@ -45,8 +57,9 @@
 (defn show-event [{:keys [data]}]
   (get-resource
    (fn [ctx]
-     (let [session (deref (:session data))
-           event-id (get-in ctx [:parameters :path :event-id])]
+     (let [event-id (get-in ctx [:parameters :path :event-id])
+           session (-> (data/fetch data event-id)
+                       drop-namespace-from-keywords)]
        (selmer/render-file
         "templates/event.html"
         (->
@@ -60,28 +73,6 @@
                        ::submit-session
                        (bidi/path-for routes ::submit-session :event-id event-id)})))))))
 
-(defn- random-uuid []
-  (java.util.UUID/randomUUID))
-
-;; TODO - probably implemented in Crux DB
-(defn update-state [state {:keys [title description] :as session}]
-  (let [id (random-uuid)
-        current-user "joy" ;; TODO - retrieve from header
-        new-session {:sponsor current-user :session (assoc session :id id)}
-        new-facts [{::fact :session-suggested
-                    ::session {:id id :title title :description description :sponsor current-user}}]]
-    (-> state
-        (update-in [:waiting-queue] #(concat % [new-session]))
-        (update-in [:facts] #(concat % new-facts)))))
-
-;; TODO - probably implemented as a listener for Crux
-(defn publish-events! [channel old-state new-state]
-  (let [old-count (count (:facts old-state))
-        new-facts (drop old-count (:facts new-state))]
-    (log/info :facts new-facts)
-    (go (doseq [fact new-facts]
-          (>! channel fact)))))
-
 (defn submit-session [{:keys [data events]}]
   (yada/handler
    (yada/resource
@@ -90,14 +81,30 @@
       {:consumes "application/x-www-form-urlencoded"
        :parameters {:form {:title String :description String}}
        :response (fn [ctx]
-                   (let [event-id (get-in ctx [:parameters :path :event-id])
+                   (let [current-user "joy"
+                         event-id (get-in ctx [:parameters :path :event-id])
                          params  (get-in ctx [:parameters :form])
-                         session (:session data)
+                         session (data/fetch data event-id)
+                         new-state (domain/suggest-session session current-user params)
                          channel (:channel events)]
-                     (let [old-state @session
-                           new-state (swap! session update-state params)]
-                       (publish-events! channel old-state new-state)
-                       (yada-redirect ctx (bidi/path-for routes ::event :event-id event-id)))))}}})))
+                     (data/persist! data event-id new-state)
+                     (yada-redirect ctx (bidi/path-for routes ::event :event-id event-id))))}}})))
+
+(defmulti ^:private interpret-fact ::domain/fact)
+
+(defmethod interpret-fact :default
+  [fact]
+  (log/warn ::unknown-fact fact))
+
+(defmethod interpret-fact ::domain/session-suggested
+  [fact]
+  (let [{::domain/keys [session sponsor]} fact
+        {::domain/keys [title description id]} session]
+    {::fact :session-suggested,
+     ::session {:id id
+                :title title
+                :description description
+                :sponsor sponsor}}))
 
 (defn sse-for-event [{{:keys [mult-channel]} :events :as system}]
   (yada/handler
@@ -107,7 +114,8 @@
       {:produces {:media-type "text/event-stream"}
        :response (fn [ctx]
                    (let [response (:response ctx)]
-                     (let [ch (chan 256 (map json/generate-string))]
+                     (let [ch (chan 256 (map (comp json/generate-string
+                                                   interpret-fact)))]
                        (tap mult-channel ch)
                        (-> response
                            (assoc-in [:headers "X-Accel-Buffering"] "no") ;; Turn off buffering in NGINX proxy for SSE

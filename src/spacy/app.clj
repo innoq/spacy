@@ -2,7 +2,7 @@
   (:require
    [clojure.tools.logging :as log]
    [clojure.walk :as walk]
-   [clojure.core.async :refer (go >! <! <!! >!! buffer dropping-buffer sliding-buffer chan take! mult tap)]
+   [clojure.core.async :as async]
    [cheshire.core :as json]
    [com.stuartsierra.component :as component]
    [bidi.bidi :as bidi]
@@ -146,9 +146,9 @@
       {:produces {:media-type "text/event-stream"}
        :response (fn [ctx]
                    (let [response (:response ctx)]
-                     (let [ch (chan 256 (map (comp json/generate-string
-                                                   interpret-fact)))]
-                       (tap mult-channel ch)
+                     (let [ch (async/chan 256 (map (comp json/generate-string
+                                                         interpret-fact)))]
+                       (async/tap mult-channel ch)
                        (-> response
                            (assoc-in [:headers "X-Accel-Buffering"] "no") ;; Turn off buffering in NGINX proxy for SSE
                            (assoc :body ch)))))}}})))

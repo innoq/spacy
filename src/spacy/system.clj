@@ -1,7 +1,7 @@
 (ns spacy.system
   (:require
    [clojure.tools.logging :as log]
-   [clojure.core.async :refer (go >! <! <!! >!! buffer dropping-buffer sliding-buffer chan take! mult tap)]
+   [clojure.core.async :as async]
    [clojure.edn :as edn]
    [com.stuartsierra.component :as component]
    [bidi.bidi :as bidi]
@@ -21,10 +21,10 @@
 (defrecord Events [channel mult-channel]
   component/Lifecycle
   (start [component]
-    (let [ch (chan (sliding-buffer 300))]
+    (let [ch (async/chan (async/sliding-buffer 300))]
       (assoc component
              :channel ch
-             :mult-channel (mult ch))))
+             :mult-channel (async/mult ch))))
   (stop  [component]
     (dissoc component :channel :mult)))
 

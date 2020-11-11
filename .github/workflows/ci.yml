@@ -13,6 +13,13 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
+    - name: Cache dependencies
+      uses: actions/cache@v2
+      with:
+        path: ~/.m2
+        key: cache-${{ hashFiles('project.clj') }}
+        restore-keys: |
+          cache-
     - name: Install dependencies
       run: lein deps
     - name: Run tests

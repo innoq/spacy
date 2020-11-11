@@ -17,9 +17,9 @@
 (def routes
   "Configured routes for the application as a bidi data structure"
   ["/" {""    ::index
-        [:event-id "/"]  {""   ::event
-                          "sse" ::sse
-                          "submit-session" {:post {"" ::submit-session}}}}])
+        [:event-slug "/"]  {""   ::event
+                            "sse" ::sse
+                            "submit-session" {:post {"" ::submit-session}}}}])
 
 (defn get-resource
   "Wrapper for yada resource"
@@ -51,14 +51,14 @@
    (fn [ctx]
      (selmer/render-file
       "templates/index.html"
-      {:links [{:href (bidi/path-for routes ::event :event-id "dezember-2020-strategie-event")
+      {:links [{:href (bidi/path-for routes ::event :event-slug "dezember-2020-strategie-event")
                 :text "Strategie Event Open Space 2020"}]}))))
 
 (defn show-event [{:keys [data]}]
   (get-resource
    (fn [ctx]
-     (let [event-id (get-in ctx [:parameters :path :event-id])
-           session (-> (data/fetch data event-id)
+     (let [slug (get-in ctx [:parameters :path :event-slug])
+           session (-> (data/fetch data slug)
                        drop-namespace-from-keywords)]
        (selmer/render-file
         "templates/event.html"
@@ -69,9 +69,9 @@
          (assoc :next-up (first (:waiting-queue session)))
          (assoc :waiting-queue (rest (:waiting-queue session)))
          (assoc :uris {::sse
-                       (bidi/path-for routes ::sse :event-id event-id)
+                       (bidi/path-for routes ::sse :event-slug slug)
                        ::submit-session
-                       (bidi/path-for routes ::submit-session :event-id event-id)})))))))
+                       (bidi/path-for routes ::submit-session :event-slug slug)})))))))
 
 (defn submit-session [{:keys [data events]}]
   (yada/handler
@@ -82,13 +82,13 @@
        :parameters {:form {:title String :description String}}
        :response (fn [ctx]
                    (let [current-user "joy"
-                         event-id (get-in ctx [:parameters :path :event-id])
+                         slug (get-in ctx [:parameters :path :event-slug])
                          params  (get-in ctx [:parameters :form])
-                         session (data/fetch data event-id)
+                         session (data/fetch data slug)
                          new-state (domain/suggest-session session current-user params)
                          channel (:channel events)]
-                     (data/persist! data event-id new-state)
-                     (yada-redirect ctx (bidi/path-for routes ::event :event-id event-id))))}}})))
+                     (data/persist! data new-state)
+                     (yada-redirect ctx (bidi/path-for routes ::event :event-slug slug))))}}})))
 
 (defmulti ^:private interpret-fact ::domain/fact)
 

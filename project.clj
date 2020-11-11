@@ -15,6 +15,7 @@
    [juxt.modular/aleph "0.1.4"]
    [org.clojure/data.json "1.0.0"]
    [selmer "1.12.31"]
+   [juxt/crux-core "20.09-1.12.1-beta"]
    [javax.xml.bind/jaxb-api "2.4.0-b180830.0359"]]
   :repl-options {:init-ns user}
 

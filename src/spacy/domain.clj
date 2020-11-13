@@ -138,12 +138,6 @@
           (update ::schedule conj scheduled-session)
           (update ::facts into new-facts)))))
 
-(defn event->ui-representation [event]
-  (-> event
-      (assoc ::next-up (first (::waiting-queue event)))
-      (assoc ::waiting-queue (rest (::waiting-queue event)))
-      (assoc ::available-slots (available-slots event))))
-
 (comment
   (s/explain
    ::event

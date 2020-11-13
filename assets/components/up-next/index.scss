@@ -1,0 +1,9 @@
+up-next {
+  display: block;
+  position: sticky;
+  top: 0;
+  margin: $spacer-xxs 0;
+  padding: $spacer-sm;
+  border: 1px dashed black;
+  background-color: $orange-200;
+}

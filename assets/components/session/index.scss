@@ -1,0 +1,10 @@
+.session {
+  display: inline-block;
+  box-shadow: $box-shadow;
+  padding: $spacer-sm;
+  background-color: $orange-400;
+
+  &[open] summary {
+    margin-bottom: $spacer-xxs;
+  }
+}

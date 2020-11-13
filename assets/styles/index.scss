@@ -1,11 +1,54 @@
 @import "./variables";
+@import "./utilities";
+@import "./layout";
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+// RESET
+body, p {
+  margin: 0;
+}
+
+// GLOBAL STYLES
 
 body {
-  font-family: -apple-system, 'Open Sans', 'Helvetica Neue', sans-serif;
+  font-family: $font-sans-serif;
+  color: $gray-800;
 }
 
 body:not(.js) .js-only {
   display: none;
 }
 
+a {
+  color: $blue-700;
+}
+a:hover, a:focus {
+  color: $blue-600;
+}
+
+// INPUT STYLING
+
+label {
+  display: block;
+}
+input, textarea {
+  font-family: $font-sans-serif;
+  font-size: $font-size-base;
+  display: block;
+  padding: $spacer-xs $spacer-sm;
+  border: 1px solid lightgray;
+  width: 100%;
+  margin-top: $spacer-xxs;
+}
+label + label,
+label + button {
+  margin-top: $spacer-xs;
+}
+
+@import "../components/session/";
+@import "../components/up-next/";
 @import "../components/user-notifications/";
+@import "../components/waiting-queue/";

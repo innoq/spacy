@@ -51,7 +51,7 @@
                     <th>{{room}}</th>
                     {% for time in times %}
                     <td>
-                        {% for slot in scheduled %}
+                        {% for slot in schedule %}
 
                         {% ifequal room slot.room %}
                         {% ifequal time slot.time %}
@@ -63,6 +63,28 @@
                             {{ slot.session.description }}
                         </details>
 
+                        {% endifequal %}
+                        {% endifequal %}
+
+                        {% endfor %}
+
+
+                        {% for slot in available-slots %}
+
+                        {% ifequal room slot.room %}
+                        {% ifequal time slot.time %}
+                        {% if next-up %}
+                        {% ifequal next-up.sponsor current-user %}
+
+                        <form method="POST" action="{{uris.spacy..app/schedule-session}}">
+                            <input type="hidden" name="id" value="{{next-up.session.id}}">
+                            <input type="hidden" name="room" value="{{room}}">
+                            <input type="hidden" name="time" value="{{time}}">
+                            <button>Choose Slot</button>
+                        </form>
+
+                        {% endifequal %}
+                        {% endif %}
                         {% endifequal %}
                         {% endifequal %}
 

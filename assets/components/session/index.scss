@@ -1,10 +1,27 @@
 .session {
+  --post-it-width: 15rem;
   display: inline-block;
   box-shadow: $box-shadow;
   padding: $spacer-sm;
   background-color: $orange-400;
+  max-width: var(--post-it-width);
+  display: flex;
 
   &[open] summary {
     margin-bottom: $spacer-xxs;
+  }
+
+  // Use the last hex digit of the UUID id to randomize the background color
+  &[id$="1"], &[id$="5"],
+  &[id$="9"], &[id$="d"] {
+    background-color: $yellow-400;
+  }
+  &[id$="2"], &[id$="6"],
+  &[id$="a"], &[id$="e"] {
+    background-color: $teal-300;
+  }
+  &[id$="3"], &[id$="7"],
+  &[id$="b"], &[id$="f"] {
+    background-color: var(--background-color, $pink-400);
   }
 }

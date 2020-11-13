@@ -13,6 +13,7 @@ waiting-queue {
       padding: $spacer-sm;
       border: 1px dashed black;
       margin-bottom: $spacer-xs;
+      max-width: max-content;
 
       &::before {
         content: var(--up-next-text);

@@ -65,7 +65,6 @@
   (-> event
       (assoc :session-name "Strategie Event Open Space 2020")
       (assoc :next-up (first (:spacy.domain/waiting-queue event)))
-      (assoc :waiting-queue (rest (:spacy.domain/waiting-queue event)))
       (assoc :available-slots (domain/available-slots event))))
 
 (defn show-event [{:keys [data]}]

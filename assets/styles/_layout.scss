@@ -1,0 +1,86 @@
+$breakpoint-phone-landscape-up: 25rem;
+$breakpoint-desktop-up: 60rem;
+
+body {
+  display: grid;
+  min-height: 100vh;
+  grid-template-rows: min-content 1fr;
+}
+
+body > * {
+  padding: $spacer-sm;
+}
+
+header {
+  $space: $spacer-sm;
+  background-color: $gray-200;
+
+  h1 {
+    margin: 0 0 $spacer-xs;
+    font-size: 1rem;
+    font-weight: normal;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(7rem, auto));
+    gap: $spacer-xs;
+  }
+}
+
+main {
+  display: grid;
+  grid-template-areas:
+    "up-next"
+    "bulletin-board"
+    "waiting-queue"
+    "user-notifications";
+
+  up-next {
+    grid-area: up-next;
+  }
+
+  bulletin-board {
+    grid-area: bulletin-board;
+    overflow: auto;
+  }
+
+  waiting-queue {
+    grid-area: waiting-queue;
+  }
+
+  user-notifications {
+    grid-area: user-notifications;
+  }
+
+  #sessions:target {
+    padding-top: $spacer-xl;
+  }
+
+  h2 {
+    margin-top: $spacer-sm;
+    margin-bottom: $spacer-sm;
+  }
+  h2 ~ h2 {
+    margin-top: $spacer-md;
+  }
+
+  @media (min-width: $breakpoint-desktop-up) {
+    grid-template-areas:
+      "up-next bulletin-board"
+      "waiting-queue bulletin-board"
+      "waiting-queue user-notifications";
+    grid-template-columns: 20rem 1fr;
+    grid-template-rows: min-content 1fr min-content;
+    gap: $spacer-base;
+
+    #sessions:target {
+      padding-top: 0;
+    }
+  }
+}

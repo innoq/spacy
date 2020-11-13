@@ -1,3 +1,5 @@
+import { createSession } from "../session";
+
 export class WaitingQueue extends HTMLElement {
   connectedCallback() {
     if (!this.form || !this.list) {
@@ -23,11 +25,7 @@ export class WaitingQueue extends HTMLElement {
       console.error("Could not find session to add to queue.");
       return;
     }
-    const element = this.newSession();
-    element.querySelector("[id]").id = session.id;
-    element.querySelector("[data-slot=title]").textContent = session.title;
-    element.querySelector("[data-slot=sponsor]").textContent = session.sponsor;
-    element.querySelector("[data-slot=description]").textContent = session.description;
+    const element = createSession(session.sponsor, session);
 
     this.list.appendChild(element);
   }
@@ -41,7 +39,7 @@ export class WaitingQueue extends HTMLElement {
   }
 
   newSession() {
-    return this.querySelector("template").content
+    return document.getElementById("session-template").content
       .querySelector("*") // Find first true HTML node which will be our session markup
       .cloneNode(true);
   }

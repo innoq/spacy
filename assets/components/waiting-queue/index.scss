@@ -1,0 +1,24 @@
+[lang=en] {
+  --up-next-text: "Up Next:";
+}
+[lang=de] {
+  --up-next-text: "Nächster:";
+}
+
+waiting-queue {
+  ol > li {
+    margin: $spacer-xxs 0;
+
+    &:first-child {
+      padding: $spacer-sm;
+      border: 1px dashed black;
+      margin-bottom: $spacer-xs;
+
+      &::before {
+        content: var(--up-next-text);
+        margin-bottom: $spacer-xs;
+        display: block;
+      }
+    }
+  }
+}

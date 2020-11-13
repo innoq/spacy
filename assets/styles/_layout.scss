@@ -5,23 +5,27 @@ body {
   display: grid;
   min-height: 100vh;
   grid-template-rows: min-content 1fr;
+  grid-template-areas:
+    "header"
+    "main";
 }
 
 body > * {
   padding: $spacer-sm;
 }
 
+body h1 {
+  margin: 0 0 $spacer-xs;
+  font-size: 1rem;
+  font-weight: normal;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
 header {
   $space: $spacer-sm;
   background-color: $gray-200;
-
-  h1 {
-    margin: 0 0 $spacer-xs;
-    font-size: 1rem;
-    font-weight: normal;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-  }
+  grid-area: header;
 
   ul {
     list-style: none;
@@ -34,6 +38,20 @@ header {
 }
 
 main {
+  grid-area: main;
+}
+
+main[data-layout="index"] {
+  display: grid;
+  align-self: center;
+  place-items: center;
+
+  ul {
+    padding: 0;
+  }
+}
+
+main[data-layout="event"] {
   display: grid;
   grid-template-areas:
     "up-next"

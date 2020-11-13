@@ -92,6 +92,46 @@
         (update ::waiting-queue conj new-session)
         (update ::facts into new-facts))))
 
+(defn is-first-in-queue? [state id]
+  (let [next-up (first (get-in state [::waiting-queue]))]
+    (= (get-in next-up [::session ::id]) id)))
+
+(defn is-valid-slot? [state room time]
+  (and (some #{room} (::rooms state))
+       (some #{time} (::times state))))
+
+(defn slot-taken? [state room time]
+  (some (fn [s] (and (= (::room s) room)
+                     (= (::time s) time))) (::schedule state)))
+
+(defn is-open-slot? [state room time]
+  (and (is-valid-slot? state room time)
+       (not (slot-taken? state room time))))
+
+(defn can-schedule-session?
+  "The slot must be open and the session must be the first in the queue"
+  [state {:keys [id room time]}]
+  (and (is-first-in-queue? state id)
+       (is-open-slot? state room time)))
+
+(defn schedule-session [state {:keys [id room time] :as data}]
+  (if-not (can-schedule-session? state data)
+    state ;; if no session can be scheduled, return state with no modification
+    (let [queue (get-in state [::waiting-queue])
+          session (first queue)
+          fact-id (random-uuid)
+          scheduled-session (assoc session
+                                   ::room room
+                                   ::time time)
+          new-facts [(assoc scheduled-session
+                            ::fact ::session-scheduled
+                            ::at (java.util.Date.)
+                            ::id fact-id)]]
+      (-> state
+          (update ::waiting-queue rest)
+          (update ::schedule conj scheduled-session)
+          (update ::facts into new-facts)))))
+
 (comment
   (s/explain
    ::event

@@ -19,7 +19,8 @@
   ["/" {""    ::index
         [:event-slug "/"]  {""   ::event
                             "sse" ::sse
-                            "submit-session" {:post {"" ::submit-session}}}}])
+                            "submit-session" {:post {"" ::submit-session}}
+                            "schedule-session" {:post {"" ::schedule-session}}}}])
 
 (defn get-resource
   "Wrapper for yada resource"
@@ -36,6 +37,12 @@
     (-> response
         (assoc :status 302)
         (assoc-in [:headers "Location"] uri))))
+
+(defn reject-request [ctx]
+  (let [response (:response ctx)]
+    (-> response
+        (assoc :status 400)
+        (assoc :body "That request was invalid!"))))
 
 (defn- drop-namespace-from-keywords [event]
   (letfn [(no-ns [kw] (keyword (name kw)))
@@ -58,20 +65,22 @@
   (get-resource
    (fn [ctx]
      (let [slug (get-in ctx [:parameters :path :event-slug])
-           session (-> (data/fetch data slug)
-                       drop-namespace-from-keywords)]
+           event (-> (data/fetch data slug)
+                     domain/event->ui-representation
+                     drop-namespace-from-keywords)]
        (selmer/render-file
         "templates/event.html"
         (->
-         session
+         event
          (assoc :session-name "Strategie Event Open Space 2020")
          (assoc :current-user "joy") ;; TODO - replace with user from header
-         (assoc :next-up (first (:waiting-queue session)))
-         (assoc :waiting-queue (rest (:waiting-queue session)))
          (assoc :uris {::sse
                        (bidi/path-for routes ::sse :event-slug slug)
                        ::submit-session
-                       (bidi/path-for routes ::submit-session :event-slug slug)})))))))
+                       (bidi/path-for routes ::submit-session :event-slug slug)
+                       ::schedule-session
+                       (bidi/path-for routes ::schedule-session :event-slug slug)})))))))
+
 
 (defn submit-session [{:keys [data events]}]
   (yada/handler
@@ -84,11 +93,27 @@
                    (let [current-user "joy"
                          slug (get-in ctx [:parameters :path :event-slug])
                          params  (get-in ctx [:parameters :form])
-                         session (data/fetch data slug)
-                         new-state (domain/suggest-session session current-user params)
-                         channel (:channel events)]
+                         state (data/fetch data slug)
+                         new-state (domain/suggest-session state current-user params)]
                      (data/persist! data new-state)
                      (yada-redirect ctx (bidi/path-for routes ::event :event-slug slug))))}}})))
+
+(defn schedule-session [{:keys [data events]}]
+  (yada/handler
+   (yada/resource
+    {:methods
+     {:post
+      {:consumes "application/x-www-form-urlencoded"
+       :parameters {:form {:room String :time String :id java.util.UUID}}
+       :response (fn [ctx]
+                   (let [slug (get-in ctx [:parameters :path :event-slug])
+                         params (get-in ctx [:parameters :form])
+                         state (data/fetch data slug)]
+                     (if-not (domain/can-schedule-session? state params)
+                       (reject-request ctx)
+                       (let [new-state (domain/schedule-session state params)]
+                         (data/persist! data new-state)
+                         (yada-redirect ctx (bidi/path-for routes ::event :event-slug slug))))))}}})))
 
 (defmulti ^:private interpret-fact ::domain/fact)
 
@@ -128,6 +153,7 @@
   {::index (fn [system] (index system))
    ::event (fn [system] (show-event system))
    ::submit-session (fn [system] (submit-session system))
+   ::schedule-session (fn [system] (schedule-session system))
    ::sse   (fn [system] (sse-for-event system))})
 
 (defrecord App []

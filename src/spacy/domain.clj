@@ -108,6 +108,12 @@
   (and (is-valid-slot? state room time)
        (not (slot-taken? state room time))))
 
+(defn available-slots [event]
+  (for [time (::times event)
+        room (::rooms event)
+        :when (is-open-slot? event room time)]
+    {:time time :room room}))
+
 (defn can-schedule-session?
   "The slot must be open and the session must be the first in the queue"
   [state {:keys [id room time]}]
@@ -131,6 +137,12 @@
           (update ::waiting-queue rest)
           (update ::schedule conj scheduled-session)
           (update ::facts into new-facts)))))
+
+(defn event->ui-representation [event]
+  (-> event
+      (assoc ::next-up (first (::waiting-queue event)))
+      (assoc ::waiting-queue (rest (::waiting-queue event)))
+      (assoc ::available-slots (available-slots event))))
 
 (comment
   (s/explain

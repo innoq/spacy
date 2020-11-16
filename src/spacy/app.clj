@@ -113,10 +113,11 @@
        :response (fn [ctx]
                    (let [slug (get-in ctx [:parameters :path :event-slug])
                          params (get-in ctx [:parameters :form])
-                         state (data/fetch data slug)]
-                     (if-not (domain/can-schedule-session? state params)
+                         state (data/fetch data slug)
+                         outcome (domain/schedule-session state params)]
+                     (if (::domain/error outcome)
                        (reject-request ctx)
-                       (let [outcome (domain/schedule-session state params)]
+                       (do
                          (data/persist! data outcome)
                          (yada-redirect ctx (bidi/path-for routes ::event :event-slug slug))))))}}})))
 

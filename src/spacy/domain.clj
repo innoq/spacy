@@ -73,7 +73,11 @@
   inst?)
 
 (s/def ::outcome
-  (s/keys :req [::event ::facts]))
+  (s/or :success (s/keys :req [::event ::facts])
+        :failure (s/keys :req [::error])))
+
+(s/def ::error
+  #{::cannot-schedule-session})
 
 (defn- random-uuid []
   (java.util.UUID/randomUUID))
@@ -126,7 +130,7 @@
 (defn schedule-session [state {:keys [id room time] :as data}]
   {:post [(s/valid? ::outcome %)]}
   (if-not (can-schedule-session? state data)
-    state ;; if no session can be scheduled, return state with no modification
+    {::error ::cannot-schedule-session}
     (let [queue (get-in state [::waiting-queue])
           session (first queue)
           fact-id (random-uuid)

@@ -2,4 +2,4 @@
 
 (defprotocol Events
   (fetch [this slug])
-  (persist! [this event]))
+  (persist! [this outcome]))

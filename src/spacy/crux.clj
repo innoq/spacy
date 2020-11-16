@@ -22,25 +22,12 @@
     doc
     (with-crux-id doc)))
 
-(defn- facts [db slug]
-  (let [results (crux/q db
-                        {:find '[fact]
-                         :where '[[event ::domain/slug slug]
-                                  [fact ::belongs-to-event event]]
-                         :args [{'slug slug}]})]
-    (vec
-     (for [[eid] results]
-       (let [tx (crux/entity-tx db eid)]
-         (assoc (crux/entity db eid)
-                ::domain/at (:crux.db/valid-time tx)))))))
-
 (defn- fetch [db slug]
   (let [eid (ffirst (crux/q db
                             {:find '[e]
                              :where '[[e ::domain/slug slug]]
                              :args [{'slug slug}]}))
-        event (assoc (crux/entity db eid)
-                     ::domain/facts (facts db slug))]
+        event (crux/entity db eid)]
     (assert (s/valid? ::domain/event event)
             (s/explain-str ::domain/event event))
     event))
@@ -48,12 +35,13 @@
 (defn- add-event-id [event-id doc]
   (assoc doc ::belongs-to-event event-id))
 
-(defn- persist! [node event]
+(defn- persist! [node {::domain/keys [facts event]}]
   (assert (s/valid? ::domain/event event)
           (s/explain-str ::domain/event event))
+  (assert (s/valid? ::domain/facts facts)
+          (s/explain-str ::domain/facts facts))
   (let [event-id (:crux.db/id event)
-        new-facts (->> (::domain/facts event)
-                       (remove :crux.db/id)
+        new-facts (->> facts
                        (map (partial add-event-id event-id))
                        (map maybe-add-crux-id))
         event-without-facts (dissoc event ::domain/facts)]
@@ -111,5 +99,5 @@
   (fetch [component slug]
     (fetch (crux/db node) slug))
 
-  (persist! [component event]
-    (persist! node event)))
+  (persist! [component outcome]
+    (persist! node outcome)))

@@ -21,7 +21,6 @@
                 ::times
                 ::rooms
                 ::schedule
-                ::facts
                 ::slug]))
 
 (s/def ::slug
@@ -73,10 +72,14 @@
 (s/def ::at
   inst?)
 
+(s/def ::outcome
+  (s/keys :req [::event ::facts]))
+
 (defn- random-uuid []
   (java.util.UUID/randomUUID))
 
 (defn suggest-session [state sponsor {:keys [title description]}]
+  {:post [(s/valid? ::outcome %)]}
   (let [session-id (random-uuid)
         fact-id (random-uuid)
         new-session {::sponsor sponsor
@@ -88,9 +91,9 @@
                           ::fact ::session-suggested
                           ::at (java.util.Date.)
                           ::id fact-id)]]
-    (-> state
-        (update ::waiting-queue conj new-session)
-        (update ::facts into new-facts))))
+    {::facts new-facts
+     ::event (-> state
+                 (update ::waiting-queue conj new-session))}))
 
 (defn is-first-in-queue? [state id]
   (let [next-up (first (get-in state [::waiting-queue]))]
@@ -121,6 +124,7 @@
        (is-open-slot? state room time)))
 
 (defn schedule-session [state {:keys [id room time] :as data}]
+  {:post [(s/valid? ::outcome %)]}
   (if-not (can-schedule-session? state data)
     state ;; if no session can be scheduled, return state with no modification
     (let [queue (get-in state [::waiting-queue])
@@ -133,10 +137,10 @@
                             ::fact ::session-scheduled
                             ::at (java.util.Date.)
                             ::id fact-id)]]
-      (-> state
-          (update ::waiting-queue rest)
-          (update ::schedule conj scheduled-session)
-          (update ::facts into new-facts)))))
+      {::facts new-facts
+       ::event (-> state
+                   (update ::waiting-queue rest)
+                   (update ::schedule conj scheduled-session))})))
 
 (comment
   (s/explain

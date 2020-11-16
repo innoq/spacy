@@ -99,8 +99,8 @@
                          slug (get-in ctx [:parameters :path :event-slug])
                          params  (get-in ctx [:parameters :form])
                          state (data/fetch data slug)
-                         new-state (domain/suggest-session state current-user params)]
-                     (data/persist! data new-state)
+                         outcome (domain/suggest-session state current-user params)]
+                     (data/persist! data outcome)
                      (yada-redirect ctx (bidi/path-for routes ::event :event-slug slug))))}}})))
 
 (defn schedule-session [{:keys [data events]}]
@@ -116,8 +116,8 @@
                          state (data/fetch data slug)]
                      (if-not (domain/can-schedule-session? state params)
                        (reject-request ctx)
-                       (let [new-state (domain/schedule-session state params)]
-                         (data/persist! data new-state)
+                       (let [outcome (domain/schedule-session state params)]
+                         (data/persist! data outcome)
                          (yada-redirect ctx (bidi/path-for routes ::event :event-slug slug))))))}}})))
 
 (defmulti ^:private interpret-fact ::domain/fact)

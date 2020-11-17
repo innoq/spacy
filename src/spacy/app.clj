@@ -135,7 +135,7 @@
                 :description description
                 :sponsor sponsor}}))
 
-(defn sse-for-event [{{:keys [mult-channel]} :events :as system}]
+(defn sse-for-event [{{:keys [mult-channel]} :fact-channel}]
   (yada/handler
    (yada/resource
     {:methods

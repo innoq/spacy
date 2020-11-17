@@ -68,13 +68,13 @@
                 (dissoc doc :crux.db/id))]
     facts))
 
-(defn- subscribe! [node events]
-  {:pre [(:channel events)]}
+(defn- subscribe! [node fact-channel]
+  {:pre [(:channel fact-channel)]}
   (crux/listen node
                {:crux/event-type :crux/indexed-tx, :with-tx-ops? true}
                (fn [ev]
                  (let [facts (interpret ev)
-                       ch (:channel events)]
+                       ch (:channel fact-channel)]
                    (async/go (doseq [fact facts]
                                (async/>! ch fact)))))))
 
@@ -84,7 +84,7 @@
     (log/debug "Starting")
     (let [node (crux/start-node {})]
       (seed! node)
-      (subscribe! node (:events component))
+      (subscribe! node (:fact-channel component))
       (assoc component :node node)))
 
   (stop [component]

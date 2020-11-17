@@ -16,7 +16,7 @@
 (defn new-data []
   (crux/map->Crux {}))
 
-(defrecord Events [channel mult-channel]
+(defrecord FactChannel [channel mult-channel]
   component/Lifecycle
   (start [component]
     (let [ch (async/chan (async/sliding-buffer 300))]
@@ -26,18 +26,18 @@
   (stop  [component]
     (dissoc component :channel :mult)))
 
-(defn new-events []
-  (-> (map->Events {})))
+(defn new-fact-channel []
+  (-> (map->FactChannel {})))
 
 (defn system []
   (component/system-map
-   :events (new-events)
+   :fact-channel (new-fact-channel)
    :data (component/using
            (new-data)
-           [:events])
+           [:fact-channel])
    :app (component/using
          (app/new-app)
-         [:events :data])
+         [:fact-channel :data])
    :resources (new-web-resources :resource-prefix "public/")
    :router  (component/using
              (new-router)

@@ -4,12 +4,9 @@
    [clojure.walk :as walk]
    [clojure.core.async :as async]
    [cheshire.core :as json]
-   [com.stuartsierra.component :as component]
    [bidi.bidi :as bidi]
-   [ring.core.protocols :refer [StreamableResponseBody]]
    [yada.yada :as yada]
    [selmer.parser :as selmer]
-   [ring.util.response :as resp]
    [spacy.domain :as domain]
    [spacy.data :as data]
    [spacy.bidi-util :as bidi-util]))
@@ -88,7 +85,7 @@
                        (bidi/path-for routes ::schedule-session :event-slug slug)})))))))
 
 
-(defn submit-session [{:keys [data events]}]
+(defn submit-session [{:keys [data]}]
   (yada/handler
    (yada/resource
     {:methods
@@ -104,7 +101,7 @@
                      (data/persist! data outcome)
                      (yada-redirect ctx (bidi/path-for routes ::event :event-slug slug))))}}})))
 
-(defn schedule-session [{:keys [data events]}]
+(defn schedule-session [{:keys [data]}]
   (yada/handler
    (yada/resource
     {:methods
@@ -144,14 +141,13 @@
     {:methods
      {:get
       {:produces {:media-type "text/event-stream"}
-       :response (fn [ctx]
-                   (let [response (:response ctx)]
-                     (let [ch (async/chan 256 (map (comp json/generate-string
-                                                         interpret-fact)))]
-                       (async/tap mult-channel ch)
-                       (-> response
-                           (assoc-in [:headers "X-Accel-Buffering"] "no") ;; Turn off buffering in NGINX proxy for SSE
-                           (assoc :body ch)))))}}})))
+       :response (fn [{:keys [response]}]
+                   (let [ch (async/chan 256 (map (comp json/generate-string
+                                                       interpret-fact)))]
+                     (async/tap mult-channel ch)
+                     (-> response
+                         (assoc-in [:headers "X-Accel-Buffering"] "no") ;; Turn off buffering in NGINX proxy for SSE
+                         (assoc :body ch))))}}})))
 
 (def handler-map
   "Map route identifies to handler creator functions.

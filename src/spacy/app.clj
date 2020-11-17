@@ -42,6 +42,7 @@
   (let [response (:response ctx)]
     (-> response
         (assoc :status 400)
+        (assoc-in [:headers "content-type"] "text/plain")
         (assoc :body "That request was invalid!"))))
 
 (defn- drop-namespace-from-keywords [event]

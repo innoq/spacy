@@ -1,7 +1,5 @@
 (ns spacy.crux
   (:require [crux.api :as crux]
-            [clojure.set :as set]
-            [clojure.walk :as walk]
             [clojure.edn :as edn]
             [clojure.pprint :refer [pprint]]
             [clojure.spec.alpha :as s]

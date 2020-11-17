@@ -2,9 +2,7 @@
   (:require
    [clojure.tools.logging :as log]
    [clojure.core.async :as async]
-   [clojure.edn :as edn]
    [com.stuartsierra.component :as component]
-   [bidi.bidi :as bidi]
    [modular.bidi :refer (new-router new-web-resources)]
    [modular.aleph :refer (new-webserver)]
    [spacy.crux :as crux]

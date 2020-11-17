@@ -43,9 +43,8 @@
   (let [event-id (:crux.db/id event)
         new-facts (->> facts
                        (map (partial add-event-id event-id))
-                       (map maybe-add-crux-id))
-        event-without-facts (dissoc event ::domain/facts)]
-    (crux/submit-tx node (for [doc (cons event-without-facts new-facts)]
+                       (map maybe-add-crux-id))]
+    (crux/submit-tx node (for [doc (cons event new-facts)]
                            [:crux.tx/put doc]))))
 
 (defn- seed! [node]

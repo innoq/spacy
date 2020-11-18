@@ -59,3 +59,22 @@
                     (:spacy.domain/schedule event)))
       (t/is (some   (fn [f] (= (:spacy.domain/fact f) :spacy.domain/session-scheduled))
                     facts)))))
+
+(deftest test-waiting-queue
+  (t/testing "Interleaving suggest and schedule actions"
+    (let [sid (random-uuid)
+          event (-> (test-event :next-up sid)
+                    (sut/suggest-session "sponsor" {:title "one", :description ""})
+                    :spacy.domain/event
+                    (sut/schedule-session {:id sid :room "Berlin" :time "11:00 - 12:00"})
+                    :spacy.domain/event
+                    (sut/suggest-session "sponsor" {:title "two", :description ""})
+                    :spacy.domain/event
+                    (sut/suggest-session "sponsor" {:title "three", :description ""})
+                    :spacy.domain/event)
+          waiting-queued-titles (->> event
+                                     :spacy.domain/waiting-queue
+                                     (map (comp :spacy.domain/title
+                                                :spacy.domain/session)))]
+      (t/is (= ["one" "two" "three"]
+               waiting-queued-titles)))))

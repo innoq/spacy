@@ -96,7 +96,7 @@
                           ::id fact-id)]]
     {::facts new-facts
      ::event (-> state
-                 (update ::waiting-queue conj new-session))}))
+                 (update ::waiting-queue #(conj (vec %) new-session)))}))
 
 (defn is-first-in-queue? [state id]
   (let [next-up (first (get-in state [::waiting-queue]))]

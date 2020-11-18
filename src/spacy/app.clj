@@ -54,7 +54,9 @@
         (->
          event
          (assoc :current-user "joy") ;; TODO - replace with user from header
-         (assoc :uris {::sse
+         (assoc :uris {::event
+                       (bidi/path-for routes ::event :event-slug slug)
+                       ::sse
                        (bidi/path-for routes ::sse :event-slug slug)
                        ::submit-session
                        (bidi/path-for routes ::submit-session :event-slug slug)

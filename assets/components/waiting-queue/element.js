@@ -1,22 +1,14 @@
 import { createSession } from "../session";
+import { removeNode } from "uitil/dom";
 
 export class WaitingQueue extends HTMLElement {
   connectedCallback() {
-    if (!this.form || !this.list) {
+    if (!this.list) {
       return;
     }
 
-    this.form.addEventListener("submit", this.submitForm.bind(this));
     document.body.addEventListener("spacy.domain/session-suggested", this.addQueuedSession.bind(this));
-  }
-
-  submitForm(ev) {
-    this.form.closest("hijax-form").submit()
-      .then(response => {
-        console.log(response.text())
-      });
-
-    ev.preventDefault();
+    document.body.addEventListener("spacy.domain/session-scheduled", this.removedQueuedSession.bind(this));
   }
 
   addQueuedSession(ev) {
@@ -31,17 +23,23 @@ export class WaitingQueue extends HTMLElement {
     this.list.appendChild(element);
   }
 
-  get form() {
-    return this.querySelector("form");
+  removedQueuedSession(ev) {
+    const session = ev.detail["spacy.domain/session"];
+    const entryInList = session && this.sessionEntry(session["spacy.domain/id"]);
+
+    if (!entryInList) {
+      return; // Do nothing when we do not have the session in our list.
+    }
+
+    removeNode(entryInList);
   }
 
   get list() {
     return this.querySelector("ol");
   }
 
-  newSession() {
-    return document.getElementById("session-template").content
-      .querySelector("*") // Find first true HTML node which will be our session markup
-      .cloneNode(true);
+  sessionEntry(id) {
+    const session = this.querySelector(`[data-id="${id}"]`);
+    return session && session.closest("li");
   }
 }

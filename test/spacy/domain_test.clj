@@ -66,7 +66,7 @@
           event (-> (test-event :next-up sid)
                     (sut/suggest-session "sponsor" {:title "one", :description ""})
                     :spacy.domain/event
-                    (sut/schedule-session {:id sid :room "Berlin" :time "11:00 - 12:00"})
+                    (sut/schedule-session "sponsor" {:id sid :room "Berlin" :time "11:00 - 12:00"})
                     :spacy.domain/event
                     (sut/suggest-session "sponsor" {:title "two", :description ""})
                     :spacy.domain/event

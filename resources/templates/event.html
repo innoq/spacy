@@ -17,20 +17,27 @@
     </nav>
 </header>
 <main data-layout="event">
-    <up-next current-user="{{current-user}}">
-        <div data-content-slot>
-            {% if next-up %}
-            {% ifequal next-up.sponsor current-user %}
-            <p role="status">
+    <up-next current-user="{{current-user}}" up-next="{{is-next-up}}" aria-live="polite">
+        <p role="status">
+            {% if is-next-up %}
                 You are currently next in line! Please <a href="#sessions">select a slot</a> for your session "{{next-up.session.title}}".
-            </p>
-            {% endifequal %}
+            {% else %}
+                {% if next-up %}
+                    Please wait for others to present their sessions.
+                {% else %}
+                    There are currently no sessions in the queue.
+                {% endif %}
             {% endif %}
-        </div>
-        <template data-template="up-next">
-            <p role="status">
-                You are currently next in line! Please <a href="#sessions">select a slot</a> for your session "<span data-slot="title"></span>".
-            </p>
+        </p>
+
+        <template data-template="spacy.ui/up-next">
+            You are currently next in line! Please <a href="#sessions">select a slot</a> for your session "<span data-slot="title"></span>".
+        </template>
+        <template data-template="spacy.ui/please-wait">
+            Please wait for others to present their sessions.
+        </template>
+        <template data-template="spacy.ui/nobody-in-queue">
+            There are currently no sessions in the queue.
         </template>
     </up-next>
     <new-session>
@@ -90,8 +97,7 @@
 
                                 {% ifequal room slot.room %}
                                 {% ifequal time slot.time %}
-                                {% if next-up %}
-                                {% ifequal next-up.sponsor current-user %}
+                                {% if is-next-up %}
 
                                 <hijax-form>
                                     <form method="POST" action="{{uris.spacy..app/schedule-session}}">
@@ -104,7 +110,6 @@
                                     </form>
                                 </hijax-form>
 
-                                {% endifequal %}
                                 {% endif %}
                                 {% endifequal %}
                                 {% endifequal %}

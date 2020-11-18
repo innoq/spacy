@@ -1,4 +1,4 @@
-import { createSession } from "../session";
+import { createSession, extractSession } from "../session";
 import { removeNode } from "uitil/dom";
 
 export class WaitingQueue extends HTMLElement {
@@ -21,6 +21,10 @@ export class WaitingQueue extends HTMLElement {
     const element = createSession(sponsor, session);
 
     this.list.appendChild(element);
+
+    if (this.list.children.length === 1) {
+      this.fireUpNextEvent(ev.detail);
+    }
   }
 
   removedQueuedSession(ev) {
@@ -32,6 +36,12 @@ export class WaitingQueue extends HTMLElement {
     }
 
     removeNode(entryInList);
+
+    this.fireUpNextEvent(this.list.children.length ? extractSession(this.list.children[0]) : "spacy.ui/nobody-in-queue");
+  }
+
+  fireUpNextEvent(detail) {
+    this.dispatchEvent(new CustomEvent("spacy.ui/up-next", { detail, bubbles: true }));
   }
 
   get list() {

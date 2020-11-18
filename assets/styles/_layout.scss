@@ -55,8 +55,8 @@ main[data-layout="event"] {
   display: grid;
   grid-template-areas:
     "up-next"
-    "bulletin-board"
     "new-session"
+    "bulletin-board"
     "waiting-queue";
 
   up-next {

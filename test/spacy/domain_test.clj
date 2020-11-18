@@ -50,8 +50,9 @@
 (deftest test-schedule-session
   (t/testing "Test scheduling of event"
     (let [sid (random-uuid)
+          _user nil
           outcome (-> (test-event :next-up sid)
-                      (sut/schedule-session {:id sid :room "Berlin" :time "11:00 - 12:00"}))
+                      (sut/schedule-session _user {:id sid :room "Berlin" :time "11:00 - 12:00"}))
           {:spacy.domain/keys [event facts]} outcome]
       (t/is (empty? (:spacy.domain/waiting-queue event)))
       (t/is (some   (fn [s] (= (get-in s [:spacy.domain/session :spacy.domain/id]) sid))

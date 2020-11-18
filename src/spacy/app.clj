@@ -36,24 +36,28 @@
       {:links [{:href (bidi/path-for routes ::event :event-slug "dezember-2020-strategie-event")
                 :text "Strategie Event Open Space 2020"}]}))))
 
-(defn event-view-model [event]
-  (-> event
-      (assoc :session-name "Strategie Event Open Space 2020")
-      (assoc :next-up (first (:spacy.domain/waiting-queue event)))
-      (assoc :available-slots (domain/available-slots event))))
+(defn event-view-model [{:keys [current-user] :as event}]
+  (let [next-up (first (:spacy.domain/waiting-queue event))]
+    (-> event
+        (assoc :session-name "Strategie Event Open Space 2020")
+        (assoc :next-up next-up)
+        (assoc :is-next-up (and next-up (= (:spacy.domain/sponsor next-up) current-user)))
+        (assoc :available-slots (domain/available-slots event)))))
 
 (defn show-event [{:keys [data]}]
   (handler-util/get-resource
    (fn [ctx]
      (let [slug (get-in ctx [:parameters :path :event-slug])
+           current-user "joy" ;; TODO - replace with current user from system
            event (-> (data/fetch data slug)
+                     (assoc :current-user current-user)
                      event-view-model
                      drop-namespace-from-keywords)]
        (selmer/render-file
         "templates/event.html"
         (->
          event
-         (assoc :current-user "joy") ;; TODO - replace with user from header
+         (assoc :current-user current-user)
          (assoc :uris {::event
                        (bidi/path-for routes ::event :event-slug slug)
                        ::sse

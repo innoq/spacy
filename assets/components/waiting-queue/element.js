@@ -7,7 +7,7 @@ export class WaitingQueue extends HTMLElement {
     }
 
     this.form.addEventListener("submit", this.submitForm.bind(this));
-    document.body.addEventListener("session-suggested", this.addQueuedSession.bind(this));
+    document.body.addEventListener("spacy.domain/session-suggested", this.addQueuedSession.bind(this));
   }
 
   submitForm(ev) {
@@ -20,12 +20,13 @@ export class WaitingQueue extends HTMLElement {
   }
 
   addQueuedSession(ev) {
-    const session = ev.detail["spacy.app/session"];
-    if (!session) {
+    const sponsor = ev.detail["spacy.domain/sponsor"];
+    const session = ev.detail["spacy.domain/session"];
+    if (!sponsor || !session) {
       console.error("Could not find session to add to queue.");
       return;
     }
-    const element = createSession(session.sponsor, session);
+    const element = createSession(sponsor, session);
 
     this.list.appendChild(element);
   }

@@ -6,10 +6,10 @@ function sessionTemplate() {
 
 export function createSession(sponsor, session) {
   const element = sessionTemplate();
-  element.querySelector("[id]").id = session.id;
-  element.querySelector("[data-slot=title]").textContent = session.title;
+  element.querySelector("[id]").id = session["spacy.domain/id"];
+  element.querySelector("[data-slot=title]").textContent = session["spacy.domain/title"];
   element.querySelector("[data-slot=sponsor]").textContent = sponsor;
-  element.querySelector("[data-slot=description]").textContent = session.description;
+  element.querySelector("[data-slot=description]").textContent = session["spacy.domain/description"];
 
   return element;
 }

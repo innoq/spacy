@@ -10,7 +10,7 @@ export class FactHandler extends HTMLElement {
 
   handleFact(event) {
     const data = JSON.parse(event.data);
-    const fact = data["spacy.app/fact"];
+    const fact = data["spacy.domain/fact"];
 
     this.dispatchEvent(new CustomEvent(fact, { detail: data, bubbles: true }));
   }

@@ -119,22 +119,6 @@
                          (data/persist! data outcome)
                          (yada-redirect ctx (bidi/path-for routes ::event :event-slug slug))))))}}})))
 
-(defmulti ^:private interpret-fact ::domain/fact)
-
-(defmethod interpret-fact :default
-  [fact]
-  (log/warn ::unknown-fact fact))
-
-(defmethod interpret-fact ::domain/session-suggested
-  [fact]
-  (let [{::domain/keys [session sponsor]} fact
-        {::domain/keys [title description id]} session]
-    {::fact :session-suggested,
-     ::session {:id id
-                :title title
-                :description description
-                :sponsor sponsor}}))
-
 (defn sse-for-event [{{:keys [mult-channel]} :fact-channel}]
   (yada/handler
    (yada/resource
@@ -142,8 +126,7 @@
      {:get
       {:produces {:media-type "text/event-stream"}
        :response (fn [{:keys [response]}]
-                   (let [ch (async/chan 256 (map (comp json/generate-string
-                                                       interpret-fact)))]
+                   (let [ch (async/chan 256 (map json/generate-string))]
                      (async/tap mult-channel ch)
                      (-> response
                          (assoc-in [:headers "X-Accel-Buffering"] "no") ;; Turn off buffering in NGINX proxy for SSE

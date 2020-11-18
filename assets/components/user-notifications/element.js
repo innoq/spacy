@@ -5,19 +5,20 @@ export class UserNotifications extends HTMLElement {
     }
     this.hidden = false;
 
-    document.body.addEventListener("session-suggested", this.addNotification.bind(this));
+    document.body.addEventListener("spacy.domain/session-suggested", this.addNotification.bind(this));
   }
 
   addNotification(ev) {
-    const session = ev.detail["spacy.app/session"];
+    const sponsor = ev.detail["spacy.domain/sponsor"];
+    const session = ev.detail["spacy.domain/session"];
     const notification = this.newNotification(ev.type);
 
-    if (!session || session.sponsor !== this.currentUser || !notification) {
+    if (!session || sponsor !== this.currentUser || !notification) {
       return; // Add no notifications for things we don't understand
     }
 
-    notification.querySelector("[data-slot=title]").textContent = session.title;
-    notification.querySelector("[data-slot=at").textContent = new Date().toLocaleString(); // TODO: formatting, use Crux timestamp?
+    notification.querySelector("[data-slot=title]").textContent = session["spacy.domain/title"];
+    notification.querySelector("[data-slot=at").textContent = new Date(); // TODO: use Crux timestamp, but deal with timezones
 
     this.entries.appendChild(notification);
   }
@@ -31,7 +32,7 @@ export class UserNotifications extends HTMLElement {
   }
 
   newNotification(fact) {
-    const template = this.querySelector(`template[data-template=${fact}]`);
+    const template = this.querySelector(`template[data-template="${fact}"]`);
     if (!template) {
       return;
     }

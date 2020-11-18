@@ -82,15 +82,14 @@
 (defn- random-uuid []
   (java.util.UUID/randomUUID))
 
-(defn suggest-session [state sponsor {:keys [title description]}]
+(defn suggest-session [state current-user {:keys [title description]}]
   {:post [(s/valid? ::outcome %)]}
   (let [session-id (random-uuid)
         fact-id (random-uuid)
-        new-session {::sponsor sponsor
+        new-session {::sponsor current-user
                      ::session {::id session-id
                                 ::title title
-                                ::description description
-                                ::sponsor sponsor}}
+                                ::description description}}
         new-facts [(assoc new-session
                           ::fact ::session-suggested
                           ::at (java.util.Date.)
@@ -127,7 +126,7 @@
   (and (is-first-in-queue? state id)
        (is-open-slot? state room time)))
 
-(defn schedule-session [state {:keys [id room time] :as data}]
+(defn schedule-session [state _current-user {:keys [id room time] :as data}]
   {:post [(s/valid? ::outcome %)]}
   (if-not (can-schedule-session? state data)
     {::error ::cannot-schedule-session}

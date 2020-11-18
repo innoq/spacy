@@ -9,8 +9,8 @@
 
     <nav>
         <ul>
-            <li><a href="#sessions">Sessions</a></li>
             <li><a href="#new-session">Suggest a new session</a></li>
+            <li><a href="#sessions">Sessions</a></li>
             <li><a href="#queue">Queue</a></li>
             <li class="js-only visually-hidden"><a href="#notifications">Notifications</a></li>
         </ul>
@@ -33,6 +33,22 @@
             </p>
         </template>
     </up-next>
+    <new-session>
+        <h2 id="new-session">Suggest a new session</h3>
+        <hijax-form>
+            <form method="POST" action="{{uris.spacy..app/submit-session}}">
+                <label>
+                    Title
+                    <input type="text" name="title" required>
+                </label>
+                <label>
+                    Description
+                    <textarea name="description" required></textarea>
+                </label>
+                <button type="submit">Submit Session</button>
+            </form>
+        </hijax-form>
+    </new-session>
     <bulletin-board>
         <h2 id="sessions">Sessions</h2>
         <div class="schedule">
@@ -106,22 +122,6 @@
             <h-include src="{{uris.spacy..app/event}}" fragment="bulletin-board .schedule"></h-include>
         </template>
     </bulletin-board>
-    <new-session>
-        <h2 id="new-session">Suggest a new session</h3>
-        <hijax-form>
-            <form method="POST" action="{{uris.spacy..app/submit-session}}">
-                <label>
-                    Title
-                    <input type="text" name="title" required>
-                </label>
-                <label>
-                    Description
-                    <textarea name="description" required></textarea>
-                </label>
-                <button type="submit">Submit Session</button>
-            </form>
-        </hijax-form>
-    </new-session>
     <waiting-queue>
         <h2 id="queue">Queue</h2>
         <ol>

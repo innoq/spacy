@@ -12,7 +12,7 @@
             <li><a href="#sessions">Sessions</a></li>
             <li><a href="#new-session">Suggest a new session</a></li>
             <li><a href="#queue">Queue</a></li>
-            <li class="js-only"><a href="#notifications">Notifications</a></li>
+            <li class="js-only visually-hidden"><a href="#notifications">Notifications</a></li>
         </ul>
     </nav>
 </header>
@@ -35,71 +35,78 @@
     </up-next>
     <bulletin-board>
         <h2 id="sessions">Sessions</h2>
-        <div class="horizontal-scroll">
-            <table>
-                <thead>
-                    <tr>
-                        <th>Room</th>
-                        {% for time in times %}
-                        <th>{{time}}</th>
-                        {% endfor %}
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for room in rooms %}
-                    <tr>
-                        <th>{{room}}</th>
-                        {% for time in times %}
-                        <td>
-                            {% for slot in schedule %}
-
-                            {% ifequal room slot.room %}
-                            {% ifequal time slot.time %}
-
-                            <details class="session" id="{{slot.session.id}}">
-                                <summary>
-                                    {{ slot.session.title }} - {{ slot.sponsor }}
-                                </summary>
-                                {{ slot.session.description }}
-                            </details>
-
-                            {% endifequal %}
-                            {% endifequal %}
-
+        <div class="schedule">
+            <div class="horizontal-scroll">
+                <table>
+                    <thead>
+                        <tr>
+                            <th></th>
+                            {% for room in rooms %}
+                            <th>{{room}}</th>
                             {% endfor %}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for time in times %}
+                        <tr data-time="{{time}}">
+                            <th>{{time}}</th>
+                            {% for room in rooms %}
+                            <td data-time="{{time}}" data-room="{{room}}">
+                                {% for slot in schedule %}
+
+                                {% ifequal time slot.time %}
+                                {% ifequal room slot.room %}
+
+                                <details class="session" data-id="{{slot.session.id}}">
+                                    <summary>
+                                        {{ slot.session.title }} - {{ slot.sponsor }}
+                                    </summary>
+                                    {{ slot.session.description }}
+                                </details>
+
+                                {% endifequal %}
+                                {% endifequal %}
+
+                                {% endfor %}
 
 
-                            {% for slot in available-slots %}
+                                {% for slot in available-slots %}
 
-                            {% ifequal room slot.room %}
-                            {% ifequal time slot.time %}
-                            {% if next-up %}
-                            {% ifequal next-up.sponsor current-user %}
+                                {% ifequal room slot.room %}
+                                {% ifequal time slot.time %}
+                                {% if next-up %}
+                                {% ifequal next-up.sponsor current-user %}
 
-                            <form method="POST" action="{{uris.spacy..app/schedule-session}}">
-                                <input type="hidden" name="id" value="{{next-up.session.id}}">
-                                <input type="hidden" name="room" value="{{room}}">
-                                <input type="hidden" name="time" value="{{time}}">
-                                <button>
-                                    Choose Slot <span class="visually-hidden">Room {{room}}, Time {{time}}</span>
-                                </button>
-                            </form>
+                                <hijax-form>
+                                    <form method="POST" action="{{uris.spacy..app/schedule-session}}">
+                                        <input type="hidden" name="id" value="{{next-up.session.id}}">
+                                        <input type="hidden" name="room" value="{{room}}">
+                                        <input type="hidden" name="time" value="{{time}}">
+                                        <button>
+                                            Choose Slot <span class="visually-hidden">Room {{room}}, Time {{time}}</span>
+                                        </button>
+                                    </form>
+                                </hijax-form>
 
-                            {% endifequal %}
-                            {% endif %}
-                            {% endifequal %}
-                            {% endifequal %}
+                                {% endifequal %}
+                                {% endif %}
+                                {% endifequal %}
+                                {% endifequal %}
 
+                                {% endfor %}
+                            </td>
                             {% endfor %}
-                        </td>
+                        </tr>
                         {% endfor %}
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+                    </tbody>
+                </table>
+            </div>
         </div>
+        <template>
+            <h-include src="{{uris.spacy..app/event}}" fragment="bulletin-board .schedule"></h-include>
+        </template>
     </bulletin-board>
-    <waiting-queue>
+    <new-session>
         <h2 id="new-session">Suggest a new session</h3>
         <hijax-form>
             <form method="POST" action="{{uris.spacy..app/submit-session}}">
@@ -114,11 +121,13 @@
                 <button type="submit">Submit Session</button>
             </form>
         </hijax-form>
+    </new-session>
+    <waiting-queue>
         <h2 id="queue">Queue</h2>
         <ol>
             {% for item in waiting-queue %}
             <li>
-                <details class="session" id="{{item.session.id}}">
+                <details class="session" data-id="{{item.session.id}}">
                     <summary>
                         {{item.session.title}} - {{item.sponsor}}
                     </summary>
@@ -128,7 +137,7 @@
             {% endfor %}
         </ol>
     </waiting-queue>
-    <user-notifications current-user="{{current-user}}" hidden role="log" aria-live="polite">
+    <user-notifications class="visually-hidden" current-user="{{current-user}}" hidden role="log" aria-live="polite">
         <h2 id="notifications">Notifications</h2>
         <details open>
             <summary>Toggle Notifications</summary>
@@ -141,12 +150,18 @@
                 <div data-slot="at"></div>
             </li>
         </template>
+        <template data-template="spacy.domain/session-scheduled">
+            <li>
+                The session "<span data-slot="title"></span>" from <span data-slot="sponsor"></span> has been scheduled at <span data-slot="time"></span> in
+                <span data-slot="room"></span>
+            </li>
+        </template>
     </user-notifications>
     <fact-handler uri="{{uris.spacy..app/sse}}"></fact-handler>
 
     <template id="session-template">
         <li>
-            <details class="session" id>
+            <details class="session" data-id>
                 <summary>
                     <span data-slot="title"></span> - <span data-slot="sponsor"></span>
                 </summary>

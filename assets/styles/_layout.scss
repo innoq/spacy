@@ -56,8 +56,8 @@ main[data-layout="event"] {
   grid-template-areas:
     "up-next"
     "bulletin-board"
-    "waiting-queue"
-    "user-notifications";
+    "new-session"
+    "waiting-queue";
 
   up-next {
     grid-area: up-next;
@@ -68,12 +68,12 @@ main[data-layout="event"] {
     overflow: auto;
   }
 
-  waiting-queue {
-    grid-area: waiting-queue;
+  new-session {
+    grid-area: new-session;
   }
 
-  user-notifications {
-    grid-area: user-notifications;
+  waiting-queue {
+    grid-area: waiting-queue;
   }
 
   #sessions:target {
@@ -91,10 +91,10 @@ main[data-layout="event"] {
   @media (min-width: $breakpoint-desktop-up) {
     grid-template-areas:
       "up-next bulletin-board"
-      "waiting-queue bulletin-board"
-      "waiting-queue user-notifications";
+      "new-session bulletin-board"
+      "waiting-queue bulletin-board";
     grid-template-columns: 20rem 1fr;
-    grid-template-rows: min-content 1fr min-content;
+    grid-template-rows: min-content min-content 1fr;
     gap: $spacer-base;
 
     #sessions:target {

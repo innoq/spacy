@@ -19,6 +19,8 @@
     "faucet-pipeline-sass": "^1.4.0"
   },
   "dependencies": {
-    "hijax-form": "^1.1.0"
+    "h-include": "^4.3.0",
+    "hijax-form": "^1.1.0",
+    "uitil": "^2.7.1"
   }
 }

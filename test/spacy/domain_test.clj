@@ -78,3 +78,40 @@
                                                 :spacy.domain/session)))]
       (t/is (= ["one" "two" "three"]
                waiting-queued-titles)))))
+
+(deftest test-delete-session
+
+  (t/testing "Session you're not sponsoring"
+    (let [sid (random-uuid)
+          outcome (-> (test-event :next-up sid)
+                      (sut/delete-session "jans" {:id sid}))]
+      (t/is (:spacy.domain/error outcome))))
+
+  (t/testing "Non-existent session"
+    (let [sid (random-uuid)
+          made-up-id (random-uuid)
+          outcome (-> (test-event :next-up sid)
+                      (sut/delete-session "joy" {:id made-up-id}))]
+      (t/is (:spacy.domain/error outcome))))
+
+  (t/testing "Suggested session"
+    (let [sid (random-uuid)
+          outcome (-> (test-event :next-up sid)
+                      (sut/delete-session "joy" {:id sid}))
+          {:spacy.domain/keys [event facts]} outcome]
+      (t/is (empty? (:spacy.domain/waiting-queue event)))
+      (t/is (some (fn [f] (= (:spacy.domain/fact f) :spacy.domain/session-deleted))
+                  facts))))
+
+  (t/testing "Scheduled session"
+    (let [sid (random-uuid)
+          outcome (-> (test-event :next-up sid)
+                      (sut/schedule-session "joy" {:id sid :room "Berlin" :time "11:00 - 12:00"})
+                      :spacy.domain/event
+                      (sut/delete-session "joy" {:id sid}))
+          {:spacy.domain/keys [event facts]} outcome]
+      (t/is (empty? (:spacy.domain/waiting-queue event)))
+      (t/is (empty? (->> (:spacy.domain/schedule event)
+                         (filter (fn [s] (= (get-in s [:spacy.domain/session :spacy.domain/id]) sid))))))
+      (t/is (some (fn [f] (= (:spacy.domain/fact f) :spacy.domain/session-deleted))
+                  facts)))))

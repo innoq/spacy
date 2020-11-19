@@ -53,7 +53,8 @@
 
 (s/def ::facts
   (s/coll-of (s/or :scheduled ::scheduled
-                   :suggested ::suggested)))
+                   :suggested ::suggested
+                   :deleted ::deleted)))
 
 (s/def ::scheduled
   (s/keys :req [::sponsor
@@ -69,6 +70,12 @@
                 ::at
                 ::id]))
 
+(s/def ::deleted
+  (s/keys :req [::sponsor
+                ::session
+                ::at
+                ::id]))
+
 (s/def ::at
   inst?)
 
@@ -77,7 +84,8 @@
         :failure (s/keys :req [::error])))
 
 (s/def ::error
-  #{::cannot-schedule-session})
+  #{::cannot-delete-session
+    ::cannot-schedule-session})
 
 (defn- random-uuid []
   (java.util.UUID/randomUUID))
@@ -144,6 +152,25 @@
        ::event (-> state
                    (update ::waiting-queue rest)
                    (update ::schedule conj scheduled-session))})))
+
+(defn- find-by-id [id {::keys [waiting-queue schedule]}]
+  (->> (concat waiting-queue schedule)
+       (filter #(= id (get-in % [::session ::id])))
+       first))
+
+(defn delete-session [state current-user {:keys [id]}]
+  {:post [(s/valid? ::outcome %)]}
+  (let [session (find-by-id id state)
+        is-the-sponsor? (= current-user (::sponsor session))]
+    (if (and session is-the-sponsor?)
+      {::event (-> state
+                   (update ::waiting-queue (partial remove #{session}))
+                   (update ::schedule (partial remove #{session})))
+       ::facts [(assoc session
+                       ::fact ::session-deleted
+                       ::at (java.util.Date.)
+                       ::id (random-uuid))]}
+      {::error ::cannot-delete-session})))
 
 (comment
   (s/explain

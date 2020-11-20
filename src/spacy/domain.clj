@@ -85,6 +85,7 @@
 
 (s/def ::error
   #{::cannot-delete-session
+    ::cannot-move-session
     ::cannot-schedule-session})
 
 (defn- random-uuid []
@@ -158,6 +159,11 @@
        (filter #(= id (get-in % [::session ::id])))
        first))
 
+(defn- find-in-schedule-by-id [id {::keys [schedule]}]
+  (->> schedule
+       (filter #(= id (get-in % [::session ::id])))
+       first))
+
 (defn delete-session [state current-user {:keys [id]}]
   {:post [(s/valid? ::outcome %)]}
   (let [session (find-by-id id state)
@@ -171,6 +177,23 @@
                        ::at (java.util.Date.)
                        ::id (random-uuid))]}
       {::error ::cannot-delete-session})))
+
+(defn move-session [state current-user {:keys [id room time]}]
+  {:post [(s/valid? ::outcome %)]}
+  (let [session (find-in-schedule-by-id id state)
+        is-the-sponsor? (= current-user (::sponsor session))
+        can-move? (and session
+                       is-the-sponsor?
+                       (is-open-slot? state room time))
+        moved (assoc session ::room room ::time time)]
+    (if can-move?
+      {::event (-> state
+                   (update ::schedule (partial replace {session moved})))
+       ::facts [(assoc moved
+                       ::fact ::session-moved
+                       ::at (java.util.Date.)
+                       ::id (random-uuid))]}
+      {::error ::cannot-move-session})))
 
 (comment
   (s/explain

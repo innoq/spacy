@@ -115,3 +115,42 @@
                          (filter (fn [s] (= (get-in s [:spacy.domain/session :spacy.domain/id]) sid))))))
       (t/is (some (fn [f] (= (:spacy.domain/fact f) :spacy.domain/session-deleted))
                   facts)))))
+
+(deftest test-move-session
+
+  (t/testing "Session in the waiting queue"
+    (let [sid (random-uuid)
+          outcome (-> (test-event :next-up sid)
+                      (sut/move-session "joy" {:id sid :room "Monheim" :time "11:00 - 12:00"}))]
+      (t/is (:spacy.domain/error outcome))))
+
+  (t/testing "Session you're not sponsoring"
+    (let [sid (random-uuid)
+          outcome (-> (test-event :next-up sid)
+                      (sut/schedule-session "joy" {:id sid :room "Berlin" :time "11:00 - 12:00"})
+                      :spacy.domain/event
+                      (sut/move-session "jans" {:id sid :room "Monheim" :time "11:00 - 12:00"}))]
+      (t/is (:spacy.domain/error outcome))))
+
+  (t/testing "Scheduled session to slot that's not open"
+    (let [sid (random-uuid)
+          outcome (-> (test-event :next-up sid)
+                      (sut/schedule-session "joy" {:id sid :room "Berlin" :time "11:00 - 12:00"})
+                      :spacy.domain/event
+                      (sut/move-session "joy" {:id sid :room "Berlin" :time "10:00 - 11:00"}))]
+      (t/is (:spacy.domain/error outcome))))
+
+  (t/testing "Scheduled session to an open slot"
+    (let [sid (random-uuid)
+          outcome (-> (test-event :next-up sid)
+                      (sut/schedule-session "joy" {:id sid :room "Berlin" :time "11:00 - 12:00"})
+                      :spacy.domain/event
+                      (sut/move-session "joy" {:id sid :room "Monheim" :time "11:00 - 12:00"}))
+          {:spacy.domain/keys [event facts]} outcome
+          moved-session (->> (:spacy.domain/schedule event)
+                             (filter (fn [s] (= (get-in s [:spacy.domain/session :spacy.domain/id])
+                                                sid)))
+                             first)]
+      (t/is (= "Monheim" (:spacy.domain/room moved-session)))
+      (t/is (some (fn [f] (= (:spacy.domain/fact f) :spacy.domain/session-moved))
+                  facts)))))

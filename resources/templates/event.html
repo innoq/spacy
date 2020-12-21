@@ -1,178 +1,164 @@
-{% extends "templates/base.html" %}
-{% block title %}
-{{session-name}}
-{% endblock %}
-{% block body %}
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>
+            {{session-name}}
+        </title>
+        <link rel="stylesheet" href="/bundle.css" />
+    </head>
+    <body>
+        <header>
+            <h1>{{session-name}}</h1>
 
-<header>
-    <h1>{{session-name}}</h1>
+            <nav>
+                <ul>
+                    <li><a href="#new-session">Suggest a new session</a></li>
+                    <li><a href="#sessions">Sessions</a></li>
+                    <li><a href="#queue">Queue</a></li>
+                    <li class="js-only visually-hidden"><a href="#notifications">Notifications</a></li>
+                </ul>
+            </nav>
+        </header>
+        <main data-layout="event">
+            <up-next></up-next>
+            <new-session>
+                <h2 id="new-session">Suggest a new session</h3>
+                <hijax-form>
+                    <form method="POST" action="{{uris.spacy..app/submit-session}}">
+                        <label>
+                            Title
+                            <input type="text" name="title" required>
+                        </label>
+                        <label>
+                            Description
+                            <textarea name="description" required></textarea>
+                        </label>
+                        <button type="submit">Submit Session</button>
+                    </form>
+                </hijax-form>
+            </new-session>
+            <bulletin-board>
+                <h2 id="sessions">Sessions</h2>
+                <div class="schedule">
+                    <div class="horizontal-scroll">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th></th>
+                                    {% for room in rooms %}
+                                    <th>{{room}}</th>
+                                    {% endfor %}
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for time in times %}
+                                <tr data-time="{{time}}">
+                                    <th>{{time}}</th>
+                                    {% for room in rooms %}
+                                    <td data-time="{{time}}" data-room="{{room}}">
+                                        {% for slot in schedule %}
 
-    <nav>
-        <ul>
-            <li><a href="#new-session">Suggest a new session</a></li>
-            <li><a href="#sessions">Sessions</a></li>
-            <li><a href="#queue">Queue</a></li>
-            <li class="js-only visually-hidden"><a href="#notifications">Notifications</a></li>
-        </ul>
-    </nav>
-</header>
-<main data-layout="event">
-    <up-next current-user="{{current-user}}" up-next="{{is-next-up}}" aria-live="polite">
-        <p role="status">
-            {% if is-next-up %}
-                You are currently next in line! Please <a href="#sessions">select a slot</a> for your session "{{next-up.session.title}}".
-            {% else %}
-                {% if next-up %}
-                    Please wait for others to present their sessions.
-                {% else %}
-                    There are currently no sessions in the queue.
-                {% endif %}
-            {% endif %}
-        </p>
+                                        {% ifequal time slot.time %}
+                                        {% ifequal room slot.room %}
 
-        <template data-template="spacy.ui/up-next">
-            You are currently next in line! Please <a href="#sessions">select a slot</a> for your session "<span data-slot="title"></span>".
-        </template>
-        <template data-template="spacy.ui/please-wait">
-            Please wait for others to present their sessions.
-        </template>
-        <template data-template="spacy.ui/nobody-in-queue">
-            There are currently no sessions in the queue.
-        </template>
-    </up-next>
-    <new-session>
-        <h2 id="new-session">Suggest a new session</h3>
-        <hijax-form>
-            <form method="POST" action="{{uris.spacy..app/submit-session}}">
-                <label>
-                    Title
-                    <input type="text" name="title" required>
-                </label>
-                <label>
-                    Description
-                    <textarea name="description" required></textarea>
-                </label>
-                <button type="submit">Submit Session</button>
-            </form>
-        </hijax-form>
-    </new-session>
-    <bulletin-board>
-        <h2 id="sessions">Sessions</h2>
-        <div class="schedule">
-            <div class="horizontal-scroll">
-                <table>
-                    <thead>
-                        <tr>
-                            <th></th>
-                            {% for room in rooms %}
-                            <th>{{room}}</th>
-                            {% endfor %}
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for time in times %}
-                        <tr data-time="{{time}}">
-                            <th>{{time}}</th>
-                            {% for room in rooms %}
-                            <td data-time="{{time}}" data-room="{{room}}">
-                                {% for slot in schedule %}
+                                        <details class="session" data-id="{{slot.session.id}}">
+                                            <summary>
+                                                {{ slot.session.title }} - {{ slot.sponsor }}
+                                            </summary>
+                                            {{ slot.session.description }}
+                                        </details>
 
-                                {% ifequal time slot.time %}
-                                {% ifequal room slot.room %}
+                                        {% endifequal %}
+                                        {% endifequal %}
 
-                                <details class="session" data-id="{{slot.session.id}}">
-                                    <summary>
-                                        {{ slot.session.title }} - {{ slot.sponsor }}
-                                    </summary>
-                                    {{ slot.session.description }}
-                                </details>
+                                        {% endfor %}
 
-                                {% endifequal %}
-                                {% endifequal %}
 
+                                        {% for slot in available-slots %}
+
+                                        {% ifequal room slot.room %}
+                                        {% ifequal time slot.time %}
+                                        {% if is-next-up %}
+
+                                        <hijax-form>
+                                            <form method="POST" action="{{uris.spacy..app/schedule-session}}">
+                                                <input type="hidden" name="id" value="{{next-up.session.id}}">
+                                                <input type="hidden" name="room" value="{{room}}">
+                                                <input type="hidden" name="time" value="{{time}}">
+                                                <button>
+                                                    Choose Slot <span class="visually-hidden">Room {{room}}, Time {{time}}</span>
+                                                </button>
+                                            </form>
+                                        </hijax-form>
+
+                                        {% endif %}
+                                        {% endifequal %}
+                                        {% endifequal %}
+
+                                        {% endfor %}
+                                    </td>
+                                    {% endfor %}
+                                </tr>
                                 {% endfor %}
-
-
-                                {% for slot in available-slots %}
-
-                                {% ifequal room slot.room %}
-                                {% ifequal time slot.time %}
-                                {% if is-next-up %}
-
-                                <hijax-form>
-                                    <form method="POST" action="{{uris.spacy..app/schedule-session}}">
-                                        <input type="hidden" name="id" value="{{next-up.session.id}}">
-                                        <input type="hidden" name="room" value="{{room}}">
-                                        <input type="hidden" name="time" value="{{time}}">
-                                        <button>
-                                            Choose Slot <span class="visually-hidden">Room {{room}}, Time {{time}}</span>
-                                        </button>
-                                    </form>
-                                </hijax-form>
-
-                                {% endif %}
-                                {% endifequal %}
-                                {% endifequal %}
-
-                                {% endfor %}
-                            </td>
-                            {% endfor %}
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-        </div>
-        <template>
-            <h-include src="{{uris.spacy..app/event}}" fragment="bulletin-board .schedule"></h-include>
-        </template>
-    </bulletin-board>
-    <waiting-queue>
-        <h2 id="queue">Queue</h2>
-        <ol>
-            {% for item in waiting-queue %}
-            <li>
-                <details class="session" data-id="{{item.session.id}}">
-                    <summary>
-                        {{item.session.title}} - {{item.sponsor}}
-                    </summary>
-                    {{item.session.description}}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <template>
+                    <h-include src="{{uris.spacy..app/event}}" fragment="bulletin-board .schedule"></h-include>
+                </template>
+            </bulletin-board>
+            <waiting-queue>
+                <h2 id="queue">Queue</h2>
+                <ol>
+                    {% for item in waiting-queue %}
+                    <li>
+                        <details class="session" data-id="{{item.session.id}}">
+                            <summary>
+                                {{item.session.title}} - {{item.sponsor}}
+                            </summary>
+                            {{item.session.description}}
+                        </details>
+                    </li>
+                    {% endfor %}
+                </ol>
+            </waiting-queue>
+            <user-notifications class="visually-hidden" current-user="{{current-user}}" hidden role="log" aria-live="polite">
+                <h2 id="notifications">Notifications</h2>
+                <details open>
+                    <summary>Toggle Notifications</summary>
+                    <ul></ul>
                 </details>
-            </li>
-            {% endfor %}
-        </ol>
-    </waiting-queue>
-    <user-notifications class="visually-hidden" current-user="{{current-user}}" hidden role="log" aria-live="polite">
-        <h2 id="notifications">Notifications</h2>
-        <details open>
-            <summary>Toggle Notifications</summary>
-            <ul></ul>
-        </details>
 
-        <template data-template="spacy.domain/session-suggested">
-            <li>
-                Your session "<span data-slot="title"></span>" was received and placed in the queue
-                <div data-slot="at"></div>
-            </li>
-        </template>
-        <template data-template="spacy.domain/session-scheduled">
-            <li>
-                The session "<span data-slot="title"></span>" from <span data-slot="sponsor"></span> has been scheduled at <span data-slot="time"></span> in
-                <span data-slot="room"></span>
-            </li>
-        </template>
-    </user-notifications>
-    <fact-handler uri="{{uris.spacy..app/sse}}"></fact-handler>
+                <template data-template="spacy.domain/session-suggested">
+                    <li>
+                        Your session "<span data-slot="title"></span>" was received and placed in the queue
+                        <div data-slot="at"></div>
+                    </li>
+                </template>
+                <template data-template="spacy.domain/session-scheduled">
+                    <li>
+                        The session "<span data-slot="title"></span>" from <span data-slot="sponsor"></span> has been scheduled at <span data-slot="time"></span> in
+                        <span data-slot="room"></span>
+                    </li>
+                </template>
+            </user-notifications>
+            <fact-handler uri="{{uris.spacy..app/sse}}"></fact-handler>
 
-    <template id="session-template">
-        <li>
-            <details class="session" data-id>
-                <summary>
-                    <span data-slot="title"></span> - <span data-slot="sponsor"></span>
-                </summary>
-                <span data-slot="description"></span>
-            </details>
-        </li>
-    </template>
-</main>
-{% endblock %}
+            <template id="session-template">
+                <li>
+                    <details class="session" data-id>
+                        <summary>
+                            <span data-slot="title"></span> - <span data-slot="sponsor"></span>
+                        </summary>
+                        <span data-slot="description"></span>
+                    </details>
+                </li>
+            </template>
+        </main>
+
+        <script src="/bundle.js"></script>
+    </body>
+</html>

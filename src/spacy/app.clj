@@ -43,10 +43,41 @@
    (fn [ctx]
      (apply str (index-template)))))
 
+(defn current-status [is-next-up next-up]
+  (cond
+    is-next-up ::up-next
+    next-up    ::please-wait
+    :else      ::nobody-in-queue))
+
+(defn status-map [title]
+  {::up-next [:span "You are currently next in line! Please " [:a {:href "#sessions"} "select a slot"] " for your session \"" title "\""]
+   ::please-wait "Please wait for others to present their session"
+   ::nobody-in-queue "There are currently no sessions in the queue"})
+
+(html/defsnippet up-next "templates/event/up-next.html"
+  [:up-next]
+  [{:keys [current-user is-next-up next-up
+           session-title statuses status]
+    :or   {session-title  (get-in next-up [:spacy.domain/session :spacy.domain/title])
+           statuses       (status-map session-title)
+           status         (current-status is-next-up next-up)}}]
+  [:up-next] (html/set-attr :current-user current-user
+                            :up-next is-next-up)
+  [:p] (html/content (html/html (get statuses status)))
+  [:template] (html/clone-for [[status content] statuses]
+                              [:template] (html/set-attr :data-template (str "spacy.ui/" (name status)))
+                              [:template] (html/content (html/html content))))
+
+(html/deftemplate event-template "templates/event.html"
+  [{:keys [event-name current-user is-next-up] :as event}]
+  [:title] (html/content event-name)
+  [:h1] (html/content event-name)
+  [:up-next] (html/substitute (up-next event)))
+
 (defn event-view-model [{:keys [current-user] :as event}]
   (let [next-up (first (:spacy.domain/waiting-queue event))]
     (-> event
-        (assoc :session-name "Strategie Event Open Space 2020")
+        (assoc :event-name "Strategie Event Open Space 2020")
         (assoc :next-up next-up)
         (assoc :is-next-up (and next-up (= (:spacy.domain/sponsor next-up) current-user)))
         (assoc :available-slots (domain/available-slots event)))))
@@ -58,9 +89,8 @@
            current-user "joy" ;; TODO - replace with current user from system
            event (-> (data/fetch data slug)
                      (assoc :current-user current-user)
-                     event-view-model
-                     drop-namespace-from-keywords)]
-       (selmer/render-file
+                     event-view-model)]
+       #_(selmer/render-file
         "templates/event.html"
         (->
          event
@@ -72,7 +102,8 @@
                        ::submit-session
                        (bidi/path-for routes ::submit-session :event-slug slug)
                        ::schedule-session
-                       (bidi/path-for routes ::schedule-session :event-slug slug)})))))))
+                       (bidi/path-for routes ::schedule-session :event-slug slug)})))
+       (apply str (event-template event))))))
 
 (defn event-path [slug]
   (bidi/path-for routes ::event :event-slug slug))

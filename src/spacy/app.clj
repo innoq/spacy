@@ -54,19 +54,22 @@
    ::please-wait "Please wait for others to present their session"
    ::nobody-in-queue "There are currently no sessions in the queue"})
 
-(html/defsnippet up-next "templates/event/up-next.html"
+(html/defsnippet up-next-snippet "templates/event/up-next.html"
   [:up-next]
-  [{:keys [current-user is-next-up next-up
-           session-title statuses status]
-    :or   {session-title  (get-in next-up [:spacy.domain/session :spacy.domain/title])
-           statuses       (status-map session-title)
-           status         (current-status is-next-up next-up)}}]
+  [{:keys [current-user is-next-up statuses status]}]
   [:up-next] (html/set-attr :current-user current-user
                             :up-next is-next-up)
   [:p] (html/content (html/html (get statuses status)))
   [:template] (html/clone-for [[status content] statuses]
                               [:template] (html/set-attr :data-template (str "spacy.ui/" (name status)))
                               [:template] (html/content (html/html content))))
+
+(defn up-next [{:keys [is-next-up next-up] :as event}]
+  (let [session-title (get-in next-up [:spacy.domain/session :spacy.domain/title])
+        statuses (status-map session-title)
+        status (current-status is-next-up next-up)
+        values (assoc event :statuses statuses :status status)]
+    (up-next-snippet values)))
 
 (html/defsnippet new-session "templates/event/new-session.html"
   [:new-session]

@@ -1,15 +1,20 @@
-{% extends "templates/base.html" %}
-{% block title %}Open Spaces{% endblock %}
-{% block body %}
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>
+            Spacy
+        </title>
+        <link rel="stylesheet" href="/bundle.css" />
+    </head>
+    <body>
+        <main data-layout="index">
+            <h1>Open Spaces</h1>
 
-<main data-layout="index">
-    <h1>Open Spaces</h1>
-
-    <ul>
-        {% for link in links %}
-        <li><a href="{{link.href}}">{{link.text}}</a></li>
-        {% endfor %}
-    </ul>
-</main>
-
-{% endblock %}
+            <ul>
+                <li><a href="event-url">Event Name</a></li>
+            </ul>
+        </main>
+    </body>
+</html>

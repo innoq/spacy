@@ -7,6 +7,7 @@
    [bidi.bidi :as bidi]
    [yada.yada :as yada]
    [selmer.parser :as selmer]
+   [net.cgrand.enlive-html :as html]
    [spacy.domain :as domain]
    [spacy.data :as data]
    [spacy.handler-util :as handler-util]))
@@ -28,13 +29,19 @@
               :else x))]
     (walk/postwalk walk event)))
 
+(def events
+  {"Strategie Event Open Space 2020" (bidi/path-for routes ::event :event-slug "dezember-2020-strategie-event")})
+
+(html/deftemplate index-template "templates/index.html"
+  []
+  [:ul [:li html/first-of-type]] (html/clone-for [[caption url] events]
+                                                 [:li :a] (html/content caption)
+                                                 [:li :a] (html/set-attr :href url)))
+
 (defn index [system]
   (handler-util/get-resource
    (fn [ctx]
-     (selmer/render-file
-      "templates/index.html"
-      {:links [{:href (bidi/path-for routes ::event :event-slug "dezember-2020-strategie-event")
-                :text "Strategie Event Open Space 2020"}]}))))
+     (apply str (index-template)))))
 
 (defn event-view-model [{:keys [current-user] :as event}]
   (let [next-up (first (:spacy.domain/waiting-queue event))]

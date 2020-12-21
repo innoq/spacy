@@ -73,13 +73,21 @@
   [event]
   [:form] (html/set-attr :action (bidi/path-for routes ::submit-session :event-slug (:spacy.domain/slug event))))
 
+(html/defsnippet session "templates/event/session.html"
+  [:.session]
+  [event])
+
 (html/deftemplate event-template "templates/event.html"
   [{:keys [event-name current-user is-next-up] :as event}]
   [:title] (html/content event-name)
   [:h1] (html/content event-name)
   [:up-next] (html/substitute (up-next event))
   [:new-session] (html/substitute (new-session event))
+  [:template#session-template] (html/content (session {}))
   [:fact-handler] (html/set-attr :uri (bidi/path-for routes ::sse :event-slug (:spacy.domain/slug event))))
+
+(let [{:spacy.domain/keys [foo bar]} {:spacy.domain/foo :boo :spacy.domain/bar :baz}]
+  [foo bar])
 
 (defn event-view-model [{:keys [current-user] :as event}]
   (let [next-up (first (:spacy.domain/waiting-queue event))]

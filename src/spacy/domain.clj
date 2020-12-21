@@ -129,6 +129,12 @@
         :when (is-open-slot? event room time)]
     {:time time :room room}))
 
+(defn find-session-for-slot [{::keys [schedule]} room time]
+  (->> schedule
+       (filter #(= room (::room %)))
+       (filter #(= time (::time %)))
+       first))
+
 (defn can-schedule-session?
   "The slot must be open and the session must be the first in the queue"
   [state {:keys [id room time]}]

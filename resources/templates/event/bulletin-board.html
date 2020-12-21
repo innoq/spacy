@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+  <body>
+    <bulletin-board>
+      <h2 id="sessions">Sessions</h2>
+      <div class="schedule">
+          <div class="horizontal-scroll">
+              <table>
+                  <thead>
+                      <tr>
+                          <th></th>
+                      </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <th></th>
+                      <td></td>
+                    </tr>
+                  </tbody>
+              </table>
+          </div>
+      </div>
+      <template>
+          <h-include src="{{uris.spacy..app/event}}" fragment="bulletin-board .schedule"></h-include>
+      </template>
+    </bulletin-board>
+    <hijax-form>
+      <form method="POST" action="{{uris.spacy..app/schedule-session}}">
+          <input type="hidden" name="id" value="{{next-up.session.id}}">
+          <input type="hidden" name="room" value="{{room}}">
+          <input type="hidden" name="time" value="{{time}}">
+          <button>
+              Choose Slot <span class="visually-hidden">Room {{room}}, Time {{time}}</span>
+          </button>
+      </form>
+    </hijax-form>
+  </body>
+</html>

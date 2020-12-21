@@ -18,7 +18,7 @@ export class WaitingQueue extends HTMLElement {
       console.error("Could not find session to add to queue.");
       return;
     }
-    const element = createSession(sponsor, session);
+    const element = createSession(sponsor, session, "li");
 
     this.list.appendChild(element);
 

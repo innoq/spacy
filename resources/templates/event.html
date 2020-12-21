@@ -3,14 +3,12 @@
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <title>
-            {{session-name}}
-        </title>
+        <title></title>
         <link rel="stylesheet" href="/bundle.css" />
     </head>
     <body>
         <header>
-            <h1>{{session-name}}</h1>
+            <h1></h1>
 
             <nav>
                 <ul>
@@ -24,79 +22,9 @@
         <main data-layout="event">
             <up-next></up-next>
             <new-session id="new-session"></new-session>
-            <bulletin-board>
-                <h2 id="sessions">Sessions</h2>
-                <div class="schedule">
-                    <div class="horizontal-scroll">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th></th>
-                                    {% for room in rooms %}
-                                    <th>{{room}}</th>
-                                    {% endfor %}
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for time in times %}
-                                <tr data-time="{{time}}">
-                                    <th>{{time}}</th>
-                                    {% for room in rooms %}
-                                    <td data-time="{{time}}" data-room="{{room}}">
-                                        {% for slot in schedule %}
-
-                                        {% ifequal time slot.time %}
-                                        {% ifequal room slot.room %}
-
-                                        <details class="session" data-id="{{slot.session.id}}">
-                                            <summary>
-                                                {{ slot.session.title }} - {{ slot.sponsor }}
-                                            </summary>
-                                            {{ slot.session.description }}
-                                        </details>
-
-                                        {% endifequal %}
-                                        {% endifequal %}
-
-                                        {% endfor %}
-
-
-                                        {% for slot in available-slots %}
-
-                                        {% ifequal room slot.room %}
-                                        {% ifequal time slot.time %}
-                                        {% if is-next-up %}
-
-                                        <hijax-form>
-                                            <form method="POST" action="{{uris.spacy..app/schedule-session}}">
-                                                <input type="hidden" name="id" value="{{next-up.session.id}}">
-                                                <input type="hidden" name="room" value="{{room}}">
-                                                <input type="hidden" name="time" value="{{time}}">
-                                                <button>
-                                                    Choose Slot <span class="visually-hidden">Room {{room}}, Time {{time}}</span>
-                                                </button>
-                                            </form>
-                                        </hijax-form>
-
-                                        {% endif %}
-                                        {% endifequal %}
-                                        {% endifequal %}
-
-                                        {% endfor %}
-                                    </td>
-                                    {% endfor %}
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-                <template>
-                    <h-include src="{{uris.spacy..app/event}}" fragment="bulletin-board .schedule"></h-include>
-                </template>
-            </bulletin-board>
+            <bulletin-board id="sessions"></bulletin-board>
             <waiting-queue id="queue"></waiting-queue>
-            <user-notifications class="visually-hidden" current-user="{{current-user}}" hidden role="log" aria-live="polite">
+            <user-notifications class="visually-hidden" current-user hidden role="log" aria-live="polite">
                 <h2 id="notifications">Notifications</h2>
                 <details open>
                     <summary>Toggle Notifications</summary>

@@ -21,14 +21,14 @@
           </div>
       </div>
       <template>
-          <h-include src="{{uris.spacy..app/event}}" fragment="bulletin-board .schedule"></h-include>
+          <h-include src fragment="bulletin-board .schedule"></h-include>
       </template>
     </bulletin-board>
     <hijax-form>
-      <form method="POST" action="{{uris.spacy..app/schedule-session}}">
-          <input type="hidden" name="id" value="{{next-up.session.id}}">
-          <input type="hidden" name="room" value="{{room}}">
-          <input type="hidden" name="time" value="{{time}}">
+      <form method="POST" action>
+          <input type="hidden" name="id" value>
+          <input type="hidden" name="room" value>
+          <input type="hidden" name="time" value>
           <button>
               Choose Slot <span class="visually-hidden">Room {{room}}, Time {{time}}</span>
           </button>

@@ -13,7 +13,6 @@
    [bidi "2.1.6"]
    [juxt.modular/bidi "0.9.5"]
    [juxt.modular/aleph "0.1.4"]
-   [selmer "1.12.31"]
    [enlive "1.1.6"]
    [juxt/crux-core "20.09-1.12.1-beta"]
    [javax.xml.bind/jaxb-api "2.4.0-b180830.0359"]]

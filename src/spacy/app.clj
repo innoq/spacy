@@ -6,7 +6,6 @@
    [cheshire.core :as json]
    [bidi.bidi :as bidi]
    [yada.yada :as yada]
-   [selmer.parser :as selmer]
    [net.cgrand.enlive-html :as html]
    [spacy.domain :as domain]
    [spacy.data :as data]
@@ -156,19 +155,6 @@
            event (-> (data/fetch data slug)
                      (assoc :current-user current-user)
                      event-view-model)]
-       #_(selmer/render-file
-        "templates/event.html"
-        (->
-         event
-         (assoc :current-user current-user)
-         (assoc :uris {::event
-                       (bidi/path-for routes ::event :event-slug slug)
-                       ::sse
-                       (bidi/path-for routes ::sse :event-slug slug)
-                       ::submit-session
-                       (bidi/path-for routes ::submit-session :event-slug slug)
-                       ::schedule-session
-                       (bidi/path-for routes ::schedule-session :event-slug slug)})))
        (apply str (event-template event))))))
 
 (defn event-path [slug]

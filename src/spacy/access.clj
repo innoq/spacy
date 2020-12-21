@@ -1,6 +1,7 @@
 (ns spacy.access
   (:require [buddy.sign.jwt :as jwt]
             [schema.core :as schema]
+            [clojure.tools.logging :as log]
             [yada.yada :as yada]
             [yada.security]))
 
@@ -22,7 +23,10 @@
 (defmethod yada.security/verify ::cookie
   [ctx access-control]
   (if-let [cookie (get-in ctx [:cookies session])]
-    (read-cookie cookie)))
+    (try
+      (read-cookie cookie)
+      (catch clojure.lang.ExceptionInfo e
+        (log/warn e "reading cookie")))))
 
 (def control
   {:scheme ::cookie})

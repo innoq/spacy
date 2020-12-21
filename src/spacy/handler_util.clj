@@ -67,7 +67,7 @@
       {:consumes "application/x-www-form-urlencoded"
        :parameters parameters
        :response (fn [ctx]
-                   (let [current-user "joy" ;; TODO retrieve from request context
+                   (let [current-user (access/current-user ctx)
                          slug (get-in ctx [:parameters :path :event-slug])
                          params (get-in ctx [:parameters :form])
                          state (data/fetch data slug)

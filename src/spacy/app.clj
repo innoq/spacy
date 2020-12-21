@@ -140,7 +140,7 @@
   (handler-util/get-resource
    (fn [ctx]
      (let [slug (get-in ctx [:parameters :path :event-slug])
-           current-user "joy" ;; TODO - replace with current user from system
+           current-user (access/current-user ctx)
            event (-> (data/fetch data slug)
                      (assoc :current-user current-user)
                      event-view-model)]

@@ -78,7 +78,8 @@
   [:title] (html/content event-name)
   [:h1] (html/content event-name)
   [:up-next] (html/substitute (up-next event))
-  [:new-session] (html/substitute (new-session event)))
+  [:new-session] (html/substitute (new-session event))
+  [:fact-handler] (html/set-attr :uri (bidi/path-for routes ::sse :event-slug (:spacy.domain/slug event))))
 
 (defn event-view-model [{:keys [current-user] :as event}]
   (let [next-up (first (:spacy.domain/waiting-queue event))]

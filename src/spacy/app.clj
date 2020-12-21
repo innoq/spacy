@@ -64,46 +64,46 @@
                               [:template] (html/content (html/html content))))
 
 (defn up-next [{:keys [is-next-up next-up] :as event}]
-  (let [session-title (get-in next-up [:spacy.domain/session :spacy.domain/title])
+  (let [session-title (get-in next-up [::domain/session ::domain/title])
         statuses (status-map session-title)
         status (current-status is-next-up next-up)
         values (assoc event :statuses statuses :status status)]
     (up-next-snippet values)))
 
-(html/defsnippet new-session "templates/event/new-session.html"
+(html/defsnippet new-session-snippet "templates/event/new-session.html"
   [:new-session]
-  [{:spacy.domain/keys [slug]}]
+  [{::domain/keys [slug]}]
   [:form] (html/set-attr :action (bidi/path-for routes ::submit-session :event-slug slug)))
 
-(html/defsnippet session "templates/event/session.html"
+(html/defsnippet session-snippet "templates/event/session.html"
   [:.session]
-  [{:spacy.domain/keys [sponsor]
-    {:spacy.domain/keys [title id description]} :spacy.domain/session}]
+  [{::domain/keys [sponsor]
+    {::domain/keys [title id description]} ::domain/session}]
   [(html/attr? :data-id)] (html/set-attr :data-id id)
   [(html/attr= :data-slot "title")] (html/content title)
   [(html/attr= :data-slot "sponsor")] (html/content sponsor)
   [(html/attr= :data-slot "description")] (html/content description))
 
-(html/defsnippet waiting-queue "templates/event/waiting-queue.html"
+(html/defsnippet waiting-queue-snippet "templates/event/waiting-queue.html"
   [:waiting-queue]
-  [{:spacy.domain/keys [waiting-queue]}]
+  [{::domain/keys [waiting-queue]}]
   [:ol [:li]] (html/clone-for [s waiting-queue]
-                              [:li] (html/content (session s))))
+                              [:li] (html/content (session-snippet s))))
 
-(html/defsnippet schedule-session-snippet "templates/event/bulletin-board.html"
-  [:hijax-form]
-  [{:spacy.domain/keys [slug]}
-   {:spacy.domain/keys [session]}
+(html/defsnippet schedule-session-snippet "templates/event/commands.html"
+  [:#schedule-session]
+  [{::domain/keys [slug]}
+   {::domain/keys [session]}
    room
    time]
   [:form] (html/set-attr :action (bidi/path-for routes ::schedule-session :event-slug slug))
-  [(html/attr= :name "id")] (html/set-attr :value (:spacy.domain/id session))
+  [(html/attr= :name "id")] (html/set-attr :value (::domain/id session))
   [(html/attr= :name "room")] (html/set-attr :value room)
   [(html/attr= :name "time")] (html/set-attr :value time))
 
-(html/defsnippet bulletin-board "templates/event/bulletin-board.html"
+(html/defsnippet bulletin-board-snippet "templates/event/bulletin-board.html"
   [:bulletin-board]
-  [{:spacy.domain/keys [schedule rooms times slug]
+  [{::domain/keys [schedule rooms times slug]
     :keys [is-next-up next-up]
     :as event}]
   [:table :thead [:th html/first-of-type]] (html/clone-for [r (cons "" rooms)]
@@ -115,7 +115,7 @@
                                                               [:td] (html/set-attr :data-time t
                                                                                    :data-room r)
                                                               [:td] (html/append (let [s (domain/find-session-for-slot event r t)]
-                                                                                   (when s (session s))))
+                                                                                   (when s (session-snippet s))))
                                                               [:td] (html/append (when (and is-next-up
                                                                                             (domain/is-open-slot? event r t))
                                                                                    (schedule-session-snippet
@@ -127,24 +127,24 @@
 
 (html/deftemplate event-template "templates/event.html"
   [{:keys [event-name current-user is-next-up]
-    :spacy.domain/keys [slug]
+    ::domain/keys [slug]
     :as event}]
   [:title] (html/content event-name)
   [:h1] (html/content event-name)
   [:up-next] (html/substitute (up-next event))
-  [:new-session] (html/substitute (new-session event))
-  [:bulletin-board] (html/substitute (bulletin-board event))
-  [:waiting-queue] (html/substitute (waiting-queue event))
-  [:template#session-template] (html/content (session {}))
+  [:new-session] (html/substitute (new-session-snippet event))
+  [:bulletin-board] (html/substitute (bulletin-board-snippet event))
+  [:waiting-queue] (html/substitute (waiting-queue-snippet event))
+  [:template#session-template] (html/content (session-snippet {}))
   [(html/attr? :current-user)] (html/set-attr :current-user current-user)
   [:fact-handler] (html/set-attr :uri (bidi/path-for routes ::sse :event-slug slug)))
 
 (defn event-view-model [{:keys [current-user] :as event}]
-  (let [next-up (first (:spacy.domain/waiting-queue event))]
+  (let [next-up (first (::domain/waiting-queue event))]
     (-> event
         (assoc :event-name "Strategie Event Open Space 2020")
         (assoc :next-up next-up)
-        (assoc :is-next-up (and next-up (= (:spacy.domain/sponsor next-up) current-user)))
+        (assoc :is-next-up (and next-up (= (::domain/sponsor next-up) current-user)))
         (assoc :available-slots (domain/available-slots event)))))
 
 (defn show-event [{:keys [data]}]

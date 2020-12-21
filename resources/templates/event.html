@@ -23,22 +23,7 @@
         </header>
         <main data-layout="event">
             <up-next></up-next>
-            <new-session>
-                <h2 id="new-session">Suggest a new session</h3>
-                <hijax-form>
-                    <form method="POST" action="{{uris.spacy..app/submit-session}}">
-                        <label>
-                            Title
-                            <input type="text" name="title" required>
-                        </label>
-                        <label>
-                            Description
-                            <textarea name="description" required></textarea>
-                        </label>
-                        <button type="submit">Submit Session</button>
-                    </form>
-                </hijax-form>
-            </new-session>
+            <new-session id="new-session"></new-session>
             <bulletin-board>
                 <h2 id="sessions">Sessions</h2>
                 <div class="schedule">

@@ -68,11 +68,17 @@
                               [:template] (html/set-attr :data-template (str "spacy.ui/" (name status)))
                               [:template] (html/content (html/html content))))
 
+(html/defsnippet new-session "templates/event/new-session.html"
+  [:new-session]
+  [event]
+  [:form] (html/set-attr :action (bidi/path-for routes ::submit-session :event-slug (:spacy.domain/slug event))))
+
 (html/deftemplate event-template "templates/event.html"
   [{:keys [event-name current-user is-next-up] :as event}]
   [:title] (html/content event-name)
   [:h1] (html/content event-name)
-  [:up-next] (html/substitute (up-next event)))
+  [:up-next] (html/substitute (up-next event))
+  [:new-session] (html/substitute (new-session event)))
 
 (defn event-view-model [{:keys [current-user] :as event}]
   (let [next-up (first (:spacy.domain/waiting-queue event))]

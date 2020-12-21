@@ -5,15 +5,16 @@
    [clojure.core.async :as async]
    [cheshire.core :as json]
    [bidi.bidi :as bidi]
-   [yada.yada :as yada]
    [net.cgrand.enlive-html :as html]
    [spacy.domain :as domain]
    [spacy.data :as data]
+   [spacy.access :as access]
    [spacy.handler-util :as handler-util]))
 
 (def routes
   "Configured routes for the application as a bidi data structure"
   ["/" {""    ::index
+        "login" ::login
         [:event-slug "/"]  {""   ::event
                             "sse" ::sse
                             "submit-session" {:post {"" ::submit-session}}
@@ -170,6 +171,7 @@
   Note: each creator function which will take the initialized system as an argument
   so that the routes can access the global application state."
   {::index (fn [system] (index system))
+   ::login (fn [system] (access/login system))
    ::event (fn [system] (show-event system))
    ::submit-session (fn [system] (submit-session system))
    ::schedule-session (fn [system] (schedule-session system))

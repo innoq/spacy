@@ -18,6 +18,7 @@
    [juxt/crux-core "20.09-1.12.1-beta"]
    [juxt/crux-jdbc "20.09-1.12.1-beta"]
    [org.postgresql/postgresql "42.2.18"]
+   [buddy/buddy-sign "3.2.0"]
    [javax.xml.bind/jaxb-api "2.4.0-b180830.0359"]]
   :repl-options {:init-ns user}
 

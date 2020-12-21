@@ -5,6 +5,7 @@
    [bidi.bidi :as bidi]
    [yada.yada :as yada]
    [spacy.domain :as domain]
+   [spacy.access :as access]
    [spacy.data :as data]))
 
 (defn handler-creator
@@ -35,11 +36,12 @@
   "Wrapper for yada resource"
   [response-fn]
   (yada/handler
-   (yada/resource
-    {:methods
-     {:get
-      {:produces {:media-type "text/html"}
-       :response response-fn}}})))
+    (yada/resource
+      {:access-control access/control
+       :methods
+       {:get
+        {:produces {:media-type "text/html"}
+         :response response-fn}}})))
 
 (defn redirect [ctx uri]
   (let [response (:response ctx)]
@@ -59,7 +61,8 @@
   [& {:keys [data parameters command redirect-to]}]
   (yada/handler
    (yada/resource
-    {:methods
+    {:access-control access/control
+     :methods
      {:post
       {:consumes "application/x-www-form-urlencoded"
        :parameters parameters
@@ -78,7 +81,8 @@
 (defn sse-stream [channel xform]
   (yada/handler
    (yada/resource
-    {:methods
+    {:access-control access/control
+     :methods
      {:get
       {:produces {:media-type "text/event-stream"}
        :response (fn [{:keys [response]}]

@@ -19,15 +19,6 @@
                             "submit-session" {:post {"" ::submit-session}}
                             "schedule-session" {:post {"" ::schedule-session}}}}])
 
-(defn- drop-namespace-from-keywords [event]
-  (letfn [(no-ns [kw] (keyword (name kw)))
-          (walk [x]
-            (cond
-              (map-entry? x) (update x 0 no-ns)
-              (keyword? x) (no-ns x)
-              :else x))]
-    (walk/postwalk walk event)))
-
 (def events
   {"Strategie Event Open Space 2020" (bidi/path-for routes ::event :event-slug "dezember-2020-strategie-event")})
 
@@ -36,17 +27,20 @@
   [:ul [:li html/first-of-type]] (html/clone-for [[caption url] events]
                                                  [:li :a] (html/content caption)
                                                  [:li :a] (html/set-attr :href url)))
-
 (defn index [system]
   (handler-util/get-resource
    (fn [ctx]
      (apply str (index-template)))))
 
-(defn current-status [is-next-up next-up]
+(defn is-up-next? [event current-user]
+  (let [next-up (domain/next-up event)]
+    (and next-up (= (::domain/sponsor next-up) current-user))))
+
+(defn current-status [event current-user]
   (cond
-    is-next-up ::up-next
-    next-up    ::please-wait
-    :else      ::nobody-in-queue))
+    (is-up-next? event current-user) ::up-next
+    (domain/next-up event)           ::please-wait
+    :else                            ::nobody-in-queue))
 
 (defn status-map [title]
   {::up-next [:span "You are currently next in line! Please " [:a {:href "#sessions"} "select a slot"] " for your session \"" title "\""]
@@ -55,20 +49,21 @@
 
 (html/defsnippet up-next-snippet "templates/event/up-next.html"
   [:up-next]
-  [{:keys [current-user is-next-up statuses status]}]
+  [{:keys [statuses status] :as event} current-user]
   [:up-next] (html/set-attr :current-user current-user
-                            :up-next is-next-up)
+                            :up-next (is-up-next? event current-user))
   [:p] (html/content (html/html (get statuses status)))
   [:template] (html/clone-for [[status content] statuses]
                               [:template] (html/set-attr :data-template (str "spacy.ui/" (name status)))
                               [:template] (html/content (html/html content))))
 
-(defn up-next [{:keys [is-next-up next-up] :as event}]
-  (let [session-title (get-in next-up [::domain/session ::domain/title])
-        statuses (status-map session-title)
-        status (current-status is-next-up next-up)
+(defn up-next [event current-user]
+  (let [next-up (domain/next-up event)
+        title (get-in next-up [::domain/session ::domain/title])
+        statuses (status-map title)
+        status (current-status event current-user)
         values (assoc event :statuses statuses :status status)]
-    (up-next-snippet values)))
+    (up-next-snippet values current-user)))
 
 (html/defsnippet new-session-snippet "templates/event/new-session.html"
   [:new-session]
@@ -103,9 +98,8 @@
 
 (html/defsnippet bulletin-board-snippet "templates/event/bulletin-board.html"
   [:bulletin-board]
-  [{::domain/keys [schedule rooms times slug]
-    :keys [is-next-up next-up]
-    :as event}]
+  [{::domain/keys [schedule rooms times slug] :as event} current-user]
+  [:h-include] (html/set-attr :src (bidi/path-for routes ::event :event-slug slug))
   [:table :thead [:th html/first-of-type]] (html/clone-for [r (cons "" rooms)]
                                                            [:th] (html/content r))
   [:table :tbody [:tr]] (html/clone-for [t times]
@@ -116,24 +110,21 @@
                                                                                    :data-room r)
                                                               [:td] (html/append (let [s (domain/find-session-for-slot event r t)]
                                                                                    (when s (session-snippet s))))
-                                                              [:td] (html/append (when (and is-next-up
+                                                              [:td] (html/append (when (and (is-up-next? event current-user)
                                                                                             (domain/is-open-slot? event r t))
                                                                                    (schedule-session-snippet
                                                                                     event
-                                                                                    next-up
+                                                                                    (domain/next-up event)
                                                                                     r
-                                                                                    t)))))
-  [:h-include] (html/set-attr :src (bidi/path-for routes ::event :event-slug slug)))
+                                                                                    t))))))
 
 (html/deftemplate event-template "templates/event.html"
-  [{:keys [event-name current-user is-next-up]
-    ::domain/keys [slug]
-    :as event}]
+  [{:keys [event-name] ::domain/keys [slug] :as event} current-user]
   [:title] (html/content event-name)
   [:h1] (html/content event-name)
-  [:up-next] (html/substitute (up-next event))
+  [:up-next] (html/substitute (up-next event current-user))
   [:new-session] (html/substitute (new-session-snippet event))
-  [:bulletin-board] (html/substitute (bulletin-board-snippet event))
+  [:bulletin-board] (html/substitute (bulletin-board-snippet event current-user))
   [:waiting-queue] (html/substitute (waiting-queue-snippet event))
   [:template#session-template] (html/content (session-snippet {}))
   [(html/attr? :current-user)] (html/set-attr :current-user current-user)
@@ -142,10 +133,7 @@
 (defn event-view-model [{:keys [current-user] :as event}]
   (let [next-up (first (::domain/waiting-queue event))]
     (-> event
-        (assoc :event-name "Strategie Event Open Space 2020")
-        (assoc :next-up next-up)
-        (assoc :is-next-up (and next-up (= (::domain/sponsor next-up) current-user)))
-        (assoc :available-slots (domain/available-slots event)))))
+        (assoc :event-name "Strategie Event Open Space 2020"))))
 
 (defn show-event [{:keys [data]}]
   (handler-util/get-resource
@@ -155,7 +143,7 @@
            event (-> (data/fetch data slug)
                      (assoc :current-user current-user)
                      event-view-model)]
-       (apply str (event-template event))))))
+       (apply str (event-template event current-user))))))
 
 (defn event-path [slug]
   (bidi/path-for routes ::event :event-slug slug))

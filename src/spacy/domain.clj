@@ -107,6 +107,9 @@
      ::event (-> state
                  (update ::waiting-queue #(conj (vec %) new-session)))}))
 
+(defn next-up [state]
+  (first (get-in state [::waiting-queue])))
+
 (defn is-first-in-queue? [state id]
   (let [next-up (first (get-in state [::waiting-queue]))]
     (= (get-in next-up [::session ::id]) id)))

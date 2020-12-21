@@ -75,7 +75,18 @@
 
 (html/defsnippet session "templates/event/session.html"
   [:.session]
-  [event])
+  [{:spacy.domain/keys [sponsor]
+    {:spacy.domain/keys [title id description]} :spacy.domain/session}]
+  [(html/attr? :data-id)] (html/set-attr :data-id id)
+  [(html/attr= :data-slot "title")] (html/content title)
+  [(html/attr= :data-slot "sponsor")] (html/content sponsor)
+  [(html/attr= :data-slot "description")] (html/content description))
+
+(html/defsnippet waiting-queue "templates/event/waiting-queue.html"
+  [:waiting-queue]
+  [{:spacy.domain/keys [waiting-queue]}]
+  [:ol [:li]] (html/clone-for [s waiting-queue]
+                              [:li] (html/content (session s))))
 
 (html/deftemplate event-template "templates/event.html"
   [{:keys [event-name current-user is-next-up] :as event}]
@@ -83,11 +94,9 @@
   [:h1] (html/content event-name)
   [:up-next] (html/substitute (up-next event))
   [:new-session] (html/substitute (new-session event))
+  [:waiting-queue] (html/substitute (waiting-queue event))
   [:template#session-template] (html/content (session {}))
   [:fact-handler] (html/set-attr :uri (bidi/path-for routes ::sse :event-slug (:spacy.domain/slug event))))
-
-(let [{:spacy.domain/keys [foo bar]} {:spacy.domain/foo :boo :spacy.domain/bar :baz}]
-  [foo bar])
 
 (defn event-view-model [{:keys [current-user] :as event}]
   (let [next-up (first (:spacy.domain/waiting-queue event))]

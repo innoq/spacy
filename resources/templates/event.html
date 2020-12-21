@@ -95,21 +95,7 @@
                     <h-include src="{{uris.spacy..app/event}}" fragment="bulletin-board .schedule"></h-include>
                 </template>
             </bulletin-board>
-            <waiting-queue>
-                <h2 id="queue">Queue</h2>
-                <ol>
-                    {% for item in waiting-queue %}
-                    <li>
-                        <details class="session" data-id="{{item.session.id}}">
-                            <summary>
-                                {{item.session.title}} - {{item.sponsor}}
-                            </summary>
-                            {{item.session.description}}
-                        </details>
-                    </li>
-                    {% endfor %}
-                </ol>
-            </waiting-queue>
+            <waiting-queue id="queue"></waiting-queue>
             <user-notifications class="visually-hidden" current-user="{{current-user}}" hidden role="log" aria-live="polite">
                 <h2 id="notifications">Notifications</h2>
                 <details open>

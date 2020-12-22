@@ -18,7 +18,8 @@
         [:event-slug "/"]  {""   ::event
                             "sse" ::sse
                             "submit-session" {:post {"" ::submit-session}}
-                            "schedule-session" {:post {"" ::schedule-session}}}}])
+                            "schedule-session" {:post {"" ::schedule-session}}
+                            "delete-session" {:post {"" ::delete-session}}}}])
 
 (def events
   {"Februar Event 2021" (bidi/path-for routes ::event :event-slug "februar-2021-event")})
@@ -77,18 +78,23 @@
 
 (html/defsnippet session-snippet "templates/event/session.html"
   [:.session]
-  [{::domain/keys [sponsor]
-    {::domain/keys [title id description]} ::domain/session}]
+  [{::domain/keys [slug]}
+   {::domain/keys [sponsor]
+    {::domain/keys [title id description]} ::domain/session}
+   current-user]
   [(html/attr? :data-id)] (html/set-attr :data-id id)
   [(html/attr= :data-slot "title")] (html/content title)
   [(html/attr= :data-slot "sponsor")] (html/content sponsor)
-  [(html/attr= :data-slot "description")] (html/content description))
+  [(html/attr= :data-slot "description")] (html/content description)
+  [:form] (html/set-attr :action (bidi/path-for routes ::delete-session :event-slug slug))
+  [(html/attr= :name "id")] (html/set-attr :value id)
+  [(html/attr? :is-sponsor)] (when (= current-user sponsor) identity))
 
 (html/defsnippet waiting-queue-snippet "templates/event/waiting-queue.html"
   [:waiting-queue]
-  [{::domain/keys [waiting-queue]}]
+  [{::domain/keys [waiting-queue] :as event} current-user]
   [:ol [:li]] (html/clone-for [s waiting-queue]
-                              [:li] (html/content (session-snippet s))))
+                              [:li] (html/content (session-snippet event s current-user))))
 
 (html/defsnippet schedule-session-snippet "templates/event/commands.html"
   [(html/attr= :data-command "schedule-session")]
@@ -116,7 +122,8 @@
                                                               [:td] (html/set-attr :data-time t
                                                                                    :data-room r)
                                                               [:td] (html/append (let [s (domain/find-session-for-slot event r t)]
-                                                                                   (when s (session-snippet s))))
+                                                                                   (when s
+                                                                                     (session-snippet event s current-user))))
                                                               [:td] (html/append (when (and (is-up-next? event current-user)
                                                                                             (domain/is-open-slot? event r t))
                                                                                    (schedule-session-snippet
@@ -132,8 +139,8 @@
   [:up-next] (html/substitute (up-next event current-user))
   [:new-session] (html/substitute (new-session-snippet event current-user))
   [:bulletin-board] (html/substitute (bulletin-board-snippet event current-user))
-  [:waiting-queue] (html/substitute (waiting-queue-snippet event))
-  [:template#session-template] (html/content (session-snippet {}))
+  [:waiting-queue] (html/substitute (waiting-queue-snippet event current-user))
+  [:template#session-template] (html/content (session-snippet event {::domain/sponsor current-user} current-user))
   [(html/attr? :current-user)] (html/set-attr :current-user current-user)
   [:fact-handler] (html/set-attr :uri (bidi/path-for routes ::sse :event-slug slug)))
 
@@ -169,6 +176,13 @@
    :command domain/schedule-session
    :redirect-to event-path))
 
+(defn delete-session [{:keys [data]}]
+  (handler-util/command
+   :data data
+   :parameters {:form {:id java.util.UUID}}
+   :command domain/delete-session
+   :redirect-to event-path))
+
 (defn sse-for-event [{{:keys [mult-channel]} :fact-channel}]
   (handler-util/sse-stream mult-channel (map json/generate-string)))
 
@@ -181,6 +195,7 @@
    ::event (fn [system] (show-event system))
    ::submit-session (fn [system] (submit-session system))
    ::schedule-session (fn [system] (schedule-session system))
+   ::delete-session (fn [system] (delete-session system))
    ::sse   (fn [system] (sse-for-event system))})
 
 (defrecord App []

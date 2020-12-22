@@ -9,6 +9,7 @@ export class WaitingQueue extends HTMLElement {
 
     document.body.addEventListener("spacy.domain/session-suggested", this.addQueuedSession.bind(this));
     document.body.addEventListener("spacy.domain/session-scheduled", this.removedQueuedSession.bind(this));
+    document.body.addEventListener("spacy.domain/session-deleted", this.removedQueuedSession.bind(this));
   }
 
   addQueuedSession(ev) {

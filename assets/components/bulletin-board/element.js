@@ -3,6 +3,7 @@ import { replaceNode } from "uitil/dom";
 export class BulletinBoard extends HTMLElement {
   connectedCallback() {
     document.body.addEventListener("spacy.domain/session-scheduled", this.reloadBoard.bind(this));
+    document.body.addEventListener("spacy.domain/session-deleted", this.reloadBoard.bind(this));
     document.body.addEventListener("spacy.ui/up-next", this.reloadBoard.bind(this));
   }
 

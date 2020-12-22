@@ -6,6 +6,14 @@
           <span data-slot="title"></span> - <span data-slot="sponsor"></span>
       </summary>
       <span data-slot="description"></span>
+      <hijax-form is-sponsor>
+        <form method="POST" action>
+            <input type="hidden" name="id">
+            <button>
+              Delete Session
+            </button>
+        </form>
+      </hijax-form>
     </details>
   </body>
 </html>

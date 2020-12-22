@@ -1,7 +1,13 @@
+import { removeNode } from "uitil/dom";
+
 function sessionTemplate() {
   return document.getElementById("session-template").content
     .querySelector("*") // Find first true HTML node which will be our session markup
     .cloneNode(true);
+}
+
+function currentUser() {
+  return document.querySelector("[current-user]").getAttribute("current-user");
 }
 
 export function createSession(sponsor, session, parentWrapper) {
@@ -10,6 +16,11 @@ export function createSession(sponsor, session, parentWrapper) {
   element.querySelector("[data-slot=title]").textContent = session["spacy.domain/title"];
   element.querySelector("[data-slot=sponsor]").textContent = sponsor;
   element.querySelector("[data-slot=description]").textContent = session["spacy.domain/description"];
+  element.querySelector("input[name=id]").setAttribute("value", session["spacy.domain/id"]);
+
+  if (currentUser() !== sponsor) {
+    removeNode(element.querySelector("[is-sponsor]"));
+  }
 
   if (parentWrapper) {
     const parent = document.createElement(parentWrapper);

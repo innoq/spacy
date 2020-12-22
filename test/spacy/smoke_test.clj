@@ -28,13 +28,13 @@
 
       (Thread/sleep 100) ;; wait for DB seeding
 
-      @(http/post (url "/dezember-2020-strategie-event/submit-session")
+      @(http/post (url "/februar-2021-event/submit-session")
                   {:headers {:content-type "application/x-www-form-urlencoded"}
                    :body "title=Integration&description=Test"})
 
       (Thread/sleep 100) ;; wait for our request to be indexed
 
-      (let [body (get-body "/dezember-2020-strategie-event/")]
+      (let [body (get-body "/februar-2021-event/")]
         (is (re-find #"title.*Integration" body))
         (is (re-find #"description.*Test" body)))
 

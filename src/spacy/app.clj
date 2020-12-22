@@ -19,6 +19,7 @@
                             "sse" ::sse
                             "submit-session" {:post {"" ::submit-session}}
                             "schedule-session" {:post {"" ::schedule-session}}
+                            "move-session" ::move-session
                             "delete-session" {:post {"" ::delete-session}}}}])
 
 (def events
@@ -113,7 +114,7 @@
 
 (html/defsnippet bulletin-board-snippet "templates/event/bulletin-board.html"
   [:bulletin-board]
-  [{::domain/keys [schedule rooms times slug] :as event} current-user]
+  [{::domain/keys [schedule rooms times slug] :as event} current-user action]
   [:h-include] (html/set-attr :src (bidi/path-for routes ::event :event-slug slug))
   [:table :thead [(html/attr= :scope "col")]] (html/clone-for [r rooms]
                                                            [:th] (html/content r))
@@ -126,13 +127,12 @@
                                                               [:td] (html/append (let [s (domain/find-session-for-slot event r t)]
                                                                                    (when s
                                                                                      (session-snippet event s current-user))))
-                                                              [:td] (html/append (when (and (is-up-next? event current-user)
-                                                                                            (domain/is-open-slot? event r t))
-                                                                                   (schedule-session-snippet
-                                                                                    event
-                                                                                    (domain/next-up event)
-                                                                                    r
-                                                                                    t))))))
+                                                              [:td] (html/append (action event current-user r t)))))
+
+(defn schedule-session-action [event current-user room time]
+  (when (and (is-up-next? event current-user)
+             (domain/is-open-slot? event room time))
+    (schedule-session-snippet event (domain/next-up event) room time)))
 
 (html/deftemplate event-template "templates/event.html"
   [{:keys [event-name] ::domain/keys [slug] :as event} current-user]
@@ -140,7 +140,7 @@
   [:h1] (html/content event-name)
   [:up-next] (html/substitute (up-next event current-user))
   [:new-session] (html/substitute (new-session-snippet event current-user))
-  [:bulletin-board] (html/substitute (bulletin-board-snippet event current-user))
+  [:bulletin-board] (html/substitute (bulletin-board-snippet event current-user schedule-session-action))
   [:waiting-queue] (html/substitute (waiting-queue-snippet event current-user))
   [:template#session-template] (html/content (session-snippet event {::domain/sponsor current-user} current-user))
   [(html/attr? :current-user)] (html/set-attr :current-user current-user)
@@ -178,6 +178,16 @@
    :command domain/schedule-session
    :redirect-to event-path))
 
+(defn move-session [{:keys [data]}]
+  (fn [req]
+    (case (:request-method req)
+      :get {:status 200 :body "HI!"}
+      :post (handler-util/command
+             :data data
+             :parameters {:form {:room String :time String :id java.util.UUID}}
+             :command domain/move-session
+             :redirect-to event-path))))
+
 (defn delete-session [{:keys [data]}]
   (handler-util/command
    :data data
@@ -198,6 +208,7 @@
    ::submit-session (fn [system] (submit-session system))
    ::schedule-session (fn [system] (schedule-session system))
    ::delete-session (fn [system] (delete-session system))
+   ::move-session (fn [system] (move-session system))
    ::sse   (fn [system] (sse-for-event system))})
 
 (defrecord App []

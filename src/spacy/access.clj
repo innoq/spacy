@@ -35,7 +35,7 @@
        (not-any? #{\< \> \; \& \#} name)))
 
 (defn current-user [ctx]
-  (get-in ctx [:authentication "default" :name]))
+  (get-in ctx [:authentication "default" :name] "nobody"))
 
 (defn- session-cookie [name]
   {session {:value (sign {:id (java.util.UUID/randomUUID)

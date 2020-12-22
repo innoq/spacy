@@ -13,8 +13,8 @@
   (log/infof "Creating server listening on http://localhost:%s" port)
   (new-webserver :port port))
 
-(defn new-data []
-  (crux/map->Crux {}))
+(defn new-data [config]
+  (crux/map->Crux {:config config}))
 
 (defrecord FactChannel [channel mult-channel]
   component/Lifecycle
@@ -33,7 +33,7 @@
   (component/system-map
    :fact-channel (new-fact-channel)
    :data (component/using
-           (new-data)
+           (new-data (config/crux config))
            [:fact-channel])
    :app (component/using
          (app/new-app)

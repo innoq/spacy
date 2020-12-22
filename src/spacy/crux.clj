@@ -78,11 +78,26 @@
                    (async/go (doseq [fact facts]
                                (async/>! ch fact)))))))
 
-(defrecord Crux [node]
+(defn- dialect [db-spec]
+  (case (:dbtype db-spec)
+    "sqlite" {:crux/module 'crux.jdbc.sqlite/->dialect}
+    "postgres" {:crux/module 'crux.jdbc.psql/->dialect}))
+
+(defn- opts [{:keys [db-spec]}]
+  {:pre [(map? db-spec)]}
+  {:crux.jdbc/connection-pool {:dialect (dialect db-spec)
+                               :pool-opts {}
+                               :db-spec db-spec}
+   :crux/tx-log {:crux/module 'crux.jdbc/->tx-log
+                 :connection-pool :crux.jdbc/connection-pool}
+   :crux/document-store {:crux/module 'crux.jdbc/->document-store
+                         :connection-pool :crux.jdbc/connection-pool}})
+
+(defrecord Crux [config node]
   component/Lifecycle
   (start [component]
-    (log/debug "Starting")
-    (let [node (crux/start-node {})]
+    (log/debug "Starting" component)
+    (let [node (crux/start-node (opts config))]
       (seed! node)
       (subscribe! node (:fact-channel component))
       (assoc component :node node)))
@@ -100,3 +115,7 @@
 
   (persist! [component outcome]
     (persist! node outcome)))
+
+(defmethod clojure.core/print-method Crux
+  [system ^java.io.Writer writer]
+  (.write writer "#<Crux>"))

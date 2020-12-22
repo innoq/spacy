@@ -54,27 +54,42 @@
 (s/def ::facts
   (s/coll-of (s/or :scheduled ::scheduled
                    :suggested ::suggested
-                   :deleted ::deleted)))
+                   :moved     ::moved
+                   :deleted   ::deleted)))
+
+(defn fact-is [kind]
+  (fn [fact] (= kind (::fact fact))))
 
 (s/def ::scheduled
-  (s/keys :req [::sponsor
-                ::session
-                ::room
-                ::time
-                ::at
-                ::id]))
+  (s/and (fact-is ::session-scheduled)
+         (s/keys :req [::sponsor
+                       ::session
+                       ::room
+                       ::time
+                       ::at
+                       ::id])))
 
 (s/def ::suggested
-  (s/keys :req [::sponsor
-                ::session
-                ::at
-                ::id]))
+  (s/and (fact-is ::session-suggested)
+         (s/keys :req [::sponsor
+                       ::session
+                       ::at
+                       ::id])))
+
+(s/def ::moved
+  (s/and (fact-is ::session-moved)
+         (s/keys :req [::sponsor
+                       ::session
+                       ::at
+                       ::id])))
 
 (s/def ::deleted
-  (s/keys :req [::sponsor
-                ::session
-                ::at
-                ::id]))
+  (s/and (fact-is ::session-deleted)
+         (s/keys :req [::sponsor
+                       ::session
+                       ::at
+                       ::id])))
+
 
 (s/def ::at
   inst?)

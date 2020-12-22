@@ -3,8 +3,67 @@ bulletin-board {
     @extend %button-secondary;
   }
 
+  table {
+    border: 1px solid $gray-500;
+    padding: $spacer-sm;
+
+    td {
+      padding: $spacer-base $spacer-xs;
+    }
+  }
+
   hijax-form {
     display: grid;
     place-items: center;
+  }
+
+  @media (max-width: 80rem) {
+    table {
+      display: block;
+      border-width: 0;
+      padding: 0;
+
+      thead {
+        @include visually-hidden();
+      }
+
+      tbody {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(12rem, auto));
+        grid-gap: $spacer-sm;
+
+        tr {
+          display: grid;
+          grid-column: 1/-1;
+          grid-template-columns: repeat(auto-fill, minmax(12rem, auto));
+          grid-template-columns: subgrid;
+
+          border: 1px solid $gray-500;
+          background-color: white;
+          box-shadow: $box-shadow-lg;
+          padding: $spacer-sm;
+
+          th {
+            grid-column: 1 / -1;
+          }
+        }
+
+        td {
+          padding: $spacer-sm;
+
+          &::before {
+            content: attr(data-room);
+            display: block;
+            color: $gray-700;
+            font-size: $font-size-sm;
+            margin-bottom: $spacer-xxs;
+          }
+        }
+      }
+    }
+
+    hijax-form {
+      justify-items: start;
+    }
   }
 }

@@ -1,4 +1,4 @@
-.visually-hidden {
+@mixin visually-hidden() {
 	position: absolute !important;
 	clip: rect(1px 1px 1px 1px); /* IE6, IE7 */
 	clip: rect(1px, 1px, 1px, 1px);
@@ -7,6 +7,10 @@
 	height: 1px !important;
 	width: 1px !important;
 	overflow: hidden;
+}
+
+.visually-hidden {
+	@include visually-hidden();
 }
 
 .horizontal-scroll {
@@ -34,7 +38,7 @@
 %button-secondary {
 	@extend %button-base;
 
-	background-color: $gray-100;
+	background-color: $gray-50;
 	border: 1px solid $gray-500;
 
 	&:hover, &:focus {

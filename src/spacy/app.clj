@@ -21,7 +21,7 @@
                             "schedule-session" {:post {"" ::schedule-session}}}}])
 
 (def events
-  {"Strategie Event Open Space 2020" (bidi/path-for routes ::event :event-slug "dezember-2020-strategie-event")})
+  {"Februar Event 2021" (bidi/path-for routes ::event :event-slug "februar-2021-event")})
 
 (html/deftemplate index-template "templates/index.html"
   []
@@ -91,7 +91,7 @@
                               [:li] (html/content (session-snippet s))))
 
 (html/defsnippet schedule-session-snippet "templates/event/commands.html"
-  [:#schedule-session]
+  [(html/attr= :data-command "schedule-session")]
   [{::domain/keys [slug]}
    {::domain/keys [session]}
    room
@@ -99,13 +99,15 @@
   [:form] (html/set-attr :action (bidi/path-for routes ::schedule-session :event-slug slug))
   [(html/attr= :name "id")] (html/set-attr :value (::domain/id session))
   [(html/attr= :name "room")] (html/set-attr :value room)
-  [(html/attr= :name "time")] (html/set-attr :value time))
+  [(html/attr= :name "time")] (html/set-attr :value time)
+  [(html/attr= :data-slot "room")] (html/content room)
+  [(html/attr= :data-slot "time")] (html/content time))
 
 (html/defsnippet bulletin-board-snippet "templates/event/bulletin-board.html"
   [:bulletin-board]
   [{::domain/keys [schedule rooms times slug] :as event} current-user]
   [:h-include] (html/set-attr :src (bidi/path-for routes ::event :event-slug slug))
-  [:table :thead [:th html/first-of-type]] (html/clone-for [r (cons "" rooms)]
+  [:table :thead [(html/attr= :scope "col")]] (html/clone-for [r rooms]
                                                            [:th] (html/content r))
   [:table :tbody [:tr]] (html/clone-for [t times]
                                         [:tr] (html/set-attr :data-time t)
@@ -138,7 +140,7 @@
 (defn event-view-model [{:keys [current-user] :as event}]
   (let [next-up (first (::domain/waiting-queue event))]
     (-> event
-        (assoc :event-name "Strategie Event Open Space 2020"))))
+        (assoc :event-name "Februar 2021 Event"))))
 
 (defn show-event [{:keys [data]}]
   (handler-util/get-resource

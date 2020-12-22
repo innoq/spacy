@@ -1,13 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
   <body>
-    <hijax-form id="schedule-session">
+    <hijax-form data-command="schedule-session">
       <form method="POST" action>
           <input type="hidden" name="id" value>
           <input type="hidden" name="room" value>
           <input type="hidden" name="time" value>
           <button>
-              Choose Slot <span class="visually-hidden">Room {{room}}, Time {{time}}</span>
+              Choose Slot <span class="visually-hidden">Room <span data-slot="room"></span>, Time <span data-slot="time"></span>
           </button>
       </form>
     </hijax-form>

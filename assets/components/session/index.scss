@@ -12,16 +12,16 @@
   }
 
   // Use the last hex digit of the UUID id to randomize the background color
-  &[id$="1"], &[id$="5"],
-  &[id$="9"], &[id$="d"] {
+  &[data-id$="1"], &[data-id$="5"],
+  &[data-id$="9"], &[data-id$="d"] {
     background-color: $yellow-400;
   }
-  &[id$="2"], &[id$="6"],
-  &[id$="a"], &[id$="e"] {
+  &[data-id$="2"], &[data-id$="6"],
+  &[data-id$="a"], &[data-id$="e"] {
     background-color: $teal-300;
   }
-  &[id$="3"], &[id$="7"],
-  &[id$="b"], &[id$="f"] {
+  &[data-id$="3"], &[data-id$="7"],
+  &[data-id$="b"], &[data-id$="f"] {
     background-color: var(--background-color, $pink-400);
   }
 }

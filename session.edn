@@ -1,13 +1,20 @@
-{:spacy.domain/slug "dezember-2020-strategie-event",
- :spacy.domain/waiting-queue
- [#:spacy.domain{:sponsor "joy",
-                 :session
-                 #:spacy.domain{:title "Responsible Web Applications",
-                                :description
-                                "Developing an application that is responsive and accessible",
-                                :id
-                                #uuid "70ef7a12-569c-45aa-ad8c-4f4935d289be"}}],
- :spacy.domain/rooms ["Berlin" "Offenbach" "Monheim"],
- :spacy.domain/times ["10:00 - 11:00" "11:00 - 12:00" "12:00 - 13:00"],
+{:spacy.domain/slug "februar-2021-event",
+ :spacy.domain/waiting-queue [],
+ :spacy.domain/rooms
+ ["Berlin"
+  "Monheim"
+  "München"
+  "Offenbach"
+  "Zürich"
+  "Backup 1"
+  "Backup 2"
+  "Backup 3"],
+ :spacy.domain/times
+ ["Donnerstag 13:00 - 14:00"
+  "Donnerstag 14:30 - 15:30"
+  "Donnerstag 16:00 - 17:00"
+  "Freitag 13:00 - 14:00"
+  "Freitag 14:30 - 15:30"
+  "Freitag 16:00 - 17:00"],
  :spacy.domain/schedule [],
- :spacy.domain/facts []}
+ :spacy.domain/facts [],}

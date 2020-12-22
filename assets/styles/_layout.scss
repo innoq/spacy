@@ -113,7 +113,8 @@ main[data-layout="event"] {
       "waiting-queue bulletin-board";
     grid-template-columns: 20rem 1fr;
     grid-template-rows: min-content min-content 1fr;
-    gap: $spacer-base;
+    column-gap: $spacer-lg;
+    row-gap: $spacer-sm;
 
     #sessions:target {
       padding-top: 0;

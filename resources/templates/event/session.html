@@ -1,19 +1,23 @@
 <!DOCTYPE html>
 <html lang="en">
   <body>
-    <details class="session" data-id>
-      <summary>
-          <span data-slot="title"></span> - <span data-slot="sponsor"></span>
-      </summary>
-      <span data-slot="description"></span>
-      <hijax-form is-sponsor>
-        <form method="POST" action>
-            <input type="hidden" name="id">
-            <button>
-              Delete Session
-            </button>
-        </form>
-      </hijax-form>
-    </details>
+    <div class="session" data-id aria-labelledby="title">
+      <details>
+        <summary>
+            <span data-slot="title" id="title"></span> - <span data-slot="sponsor"></span>
+        </summary>
+        <span data-slot="description"></span>
+      </details>
+      <div class="toolbar" is-sponsor>
+        <hijax-form>
+          <form method="POST" action>
+              <input type="hidden" name="id">
+              <button>
+                Delete Session
+              </button>
+          </form>
+        </hijax-form>
+      </div>
+    </div>
   </body>
 </html>

@@ -5,13 +5,13 @@
    [com.stuartsierra.component :as component]
    [modular.bidi :refer (new-router new-web-resources)]
    [modular.aleph :refer (new-webserver)]
+   [spacy.config :as config]
    [spacy.crux :as crux]
    [spacy.app :as app]))
 
-(defn web-server []
-  (let [port 9215]
-    (log/info "Starting server on port: " port)
-    (new-webserver :port port)))
+(defn webserver [{:keys [port]}]
+  (log/infof "Creating server listening on http://localhost:%s" port)
+  (new-webserver :port port))
 
 (defn new-data []
   (crux/map->Crux {}))
@@ -29,7 +29,7 @@
 (defn new-fact-channel []
   (-> (map->FactChannel {})))
 
-(defn system []
+(defn system [config]
   (component/system-map
    :fact-channel (new-fact-channel)
    :data (component/using
@@ -43,5 +43,5 @@
              (new-router)
              [:app :resources])
    :server  (component/using
-             (web-server)
+             (webserver (config/webserver config))
              [:router])))

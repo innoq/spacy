@@ -15,6 +15,7 @@
    [juxt.modular/aleph "0.1.4"]
    [enlive "1.1.6"]
    [aero "1.1.6"]
+   [environ "1.2.0"]
    [juxt/crux-core "20.09-1.12.1-beta"]
    [juxt/crux-jdbc "20.09-1.12.1-beta"]
    [org.postgresql/postgresql "42.2.18"]

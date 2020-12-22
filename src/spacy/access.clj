@@ -2,15 +2,14 @@
   (:require [buddy.sign.jwt :as jwt]
             [schema.core :as schema]
             [clojure.tools.logging :as log]
+            [net.cgrand.enlive-html :as html]
             [yada.yada :as yada]
-            [yada.security]))
+            [yada.security]
+            [spacy.config :as config]
+            [environ.core :as env]))
 
-;; TODO: should come from the environment
-(def jwt-key
-  (let [array (byte-array 64)]
-    (doto (java.security.SecureRandom.)
-      (.nextBytes array))
-    (String. array)))
+(def jwt-key (or (env/env :jwt-key)
+                 "UAWX9WK366IRDF5AQTRPX2I457AFTTU93PBB1QAJME107IKJM4A5HPW2I6PJRHB0"))
 
 (def session "session")
 

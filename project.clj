@@ -16,7 +16,10 @@
    [enlive "1.1.6"]
    [aero "1.1.6"]
    [juxt/crux-core "20.09-1.12.1-beta"]
+   [juxt/crux-jdbc "20.09-1.12.1-beta"]
+   [org.postgresql/postgresql "42.2.18"]
    [javax.xml.bind/jaxb-api "2.4.0-b180830.0359"]]
   :repl-options {:init-ns user}
 
-  :profiles {:dev {:dependencies [[org.clojure/tools.namespace "0.2.5"]]}})
+  :profiles {:dev {:dependencies [[org.clojure/tools.namespace "0.2.5"]
+                                  [org.xerial/sqlite-jdbc "3.34.0"]]}})

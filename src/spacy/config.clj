@@ -8,3 +8,6 @@
 
 (defn webserver [config]
   (:webserver config))
+
+(defn crux [config]
+  (:crux config))

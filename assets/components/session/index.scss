@@ -1,7 +1,7 @@
 .session {
   --post-it-width: 15rem;
   display: inline-block;
-  box-shadow: $box-shadow;
+  box-shadow: $box-shadow-lg;
   padding: $spacer-sm;
   background-color: $orange-400;
   max-width: var(--post-it-width);

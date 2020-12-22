@@ -39,7 +39,7 @@ input, textarea {
   font-size: $font-size-base;
   display: block;
   padding: $spacer-xs $spacer-sm;
-  border: 1px solid lightgray;
+  border: 1px solid $gray-400;
   width: 100%;
   margin-top: $spacer-xxs;
 }
@@ -48,6 +48,8 @@ label + button {
   margin-top: $spacer-xs;
 }
 
+@import "../components/bulletin-board/";
+@import "../components/new-session/";
 @import "../components/session/";
 @import "../components/up-next/";
 @import "../components/user-notifications/";

@@ -14,6 +14,32 @@ body > * {
   padding: $spacer-sm;
 }
 
+body[data-layout=centered] {
+  grid-template-areas: "main";
+  grid-template-rows: auto;
+  place-items: center;
+
+  h1 {
+    text-align: center;
+  }
+
+  main {
+    max-width: 25rem;
+
+    > * + * {
+      margin-top: $spacer-base;
+    }
+  }
+
+  ul {
+    padding: 0;
+  }
+
+  button {
+    @extend %button-primary;
+  }
+}
+
 body h1 {
   margin: 0 0 $spacer-xs;
   font-size: 1rem;
@@ -24,7 +50,8 @@ body h1 {
 
 header {
   $space: $spacer-sm;
-  background-color: $gray-200;
+  background-color: $indigo-50;
+  border-bottom: 1px solid $gray-400;
   grid-area: header;
 
   ul {
@@ -41,16 +68,6 @@ main {
   grid-area: main;
 }
 
-main[data-layout="index"] {
-  display: grid;
-  align-self: center;
-  place-items: center;
-
-  ul {
-    padding: 0;
-  }
-}
-
 main[data-layout="event"] {
   display: grid;
   grid-template-areas:
@@ -58,6 +75,7 @@ main[data-layout="event"] {
     "new-session"
     "bulletin-board"
     "waiting-queue";
+  padding: $spacer-base $spacer-sm;
 
   up-next {
     grid-area: up-next;

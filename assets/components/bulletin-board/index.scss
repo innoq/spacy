@@ -1,0 +1,10 @@
+bulletin-board {
+  button {
+    @extend %button-secondary;
+  }
+
+  hijax-form {
+    display: grid;
+    place-items: center;
+  }
+}

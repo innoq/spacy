@@ -41,6 +41,16 @@
   {session {:value (sign {:id (java.util.UUID/randomUUID)
                           :name name})}})
 
+(defn is-relative-uri? [s]
+  (and s
+       (re-find #"^/" s)
+       (not (re-find #"://" s)))) ;; poor man's solution
+
+(html/deftemplate login-template "templates/login.html"
+  [redirect-url]
+  [(html/attr= :name "redirect")] (when (is-relative-uri? redirect-url)
+                                      (html/set-attr :value redirect-url)))
+
 (defn login [system]
   (yada/handler
    (yada/resource
@@ -48,35 +58,27 @@
      :methods
      {:get
       {:produces {:media-type "text/html"}
+       :parameters {:query {(schema/optional-key :redirect) String}}
        :response
        (fn [ctx]
-         (str
-          "<html><body>"
-          (if-let [name (current-user ctx)]
-            (format "<p>Hi there, <em>%s</em></p>" name)
-            "<p>Who are you?</p>")
-          "<form method=post >"
-          "<input type=text name=name placeholder=name />"
-          "<input type=submit />"
-          "<br />"
-          "<br />"
-          "<input type=submit name=logout value=Logout />"
-          "</form>"
-          "</body></html>"))}
+         (let [{:keys [redirect]} (get-in ctx [:parameters :query])]
+           (apply str (login-template redirect))))}
       :post
       {:consumes "application/x-www-form-urlencoded"
        :parameters {:form {(schema/optional-key :logout) String
+                           (schema/optional-key :redirect) String
                            :name String}}
        :response
        (fn [{:keys [response] :as ctx}]
-         (let [{:keys [name logout]} (get-in ctx [:parameters :form])]
+         (let [{:keys [name logout redirect]} (get-in ctx [:parameters :form])]
            (cond
              logout
              (-> response
                  (assoc :status 302)
                  (assoc :cookies {session {:value "", :max-age 0}})
                  (assoc-in [:headers "content-type"] "text/plain")
-                 (assoc-in [:headers "Location"] "/")
+                 (assoc-in [:headers "Location"]
+                           (if (is-relative-uri? redirect) redirect "/"))
                  (assoc :body "See you later, redirecting to root."))
 
              (valid? name)
@@ -84,7 +86,8 @@
                  (assoc :status 302)
                  (assoc :cookies (session-cookie name))
                  (assoc-in [:headers "content-type"] "text/plain")
-                 (assoc-in [:headers "Location"] "/")
+                 (assoc-in [:headers "Location"]
+                           (if (is-relative-uri? redirect) redirect "/"))
                  (assoc :body "OK, redirecting to root."))
 
              :otherwise

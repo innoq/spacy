@@ -12,3 +12,32 @@
 .horizontal-scroll {
   overflow-x: auto;
 }
+
+%button-base {
+	padding: $spacer-xs $spacer-sm;
+	font-size: 1rem;
+	color: $gray-900;
+	box-shadow: $box-shadow-md;
+}
+
+%button-primary {
+	@extend %button-base;
+
+  background-color: $indigo-300;
+	border: 1px solid $indigo-900;
+
+	&:hover, &:focus {
+		background-color: $indigo-200;
+	}
+}
+
+%button-secondary {
+	@extend %button-base;
+
+	background-color: $gray-100;
+	border: 1px solid $gray-500;
+
+	&:hover, &:focus {
+		background-color: $gray-200;
+	}
+}

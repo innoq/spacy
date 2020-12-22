@@ -5,10 +5,22 @@
   padding: $spacer-sm;
   background-color: $orange-400;
   max-width: var(--post-it-width);
-  display: flex;
 
-  &[open] summary {
-    margin-bottom: $spacer-xxs;
+  > * + * {
+    margin-top: $spacer-xxs;
+  }
+
+  .toolbar {
+    margin-top: $spacer-xs;
+    display: flex;
+    gap: $spacer-xxs;
+  }
+
+  button {
+    @extend %button-secondary;
+
+    padding: $spacer-xxs $spacer-xs;
+    font-size: $font-size-sm;
   }
 
   // Use the last hex digit of the UUID id to randomize the background color

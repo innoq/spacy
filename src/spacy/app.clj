@@ -84,6 +84,8 @@
    current-user]
   [(html/attr? :data-id)] (html/set-attr :data-id id)
   [(html/attr= :data-slot "title")] (html/content title)
+  [(html/attr= :id "title")] (html/set-attr :id (str "title" id))
+  [(html/attr= :aria-labelledby "title")] (html/set-attr :aria-labelledby (str "title" id))
   [(html/attr= :data-slot "sponsor")] (html/content sponsor)
   [(html/attr= :data-slot "description")] (html/content description)
   [:form] (html/set-attr :action (bidi/path-for routes ::delete-session :event-slug slug))

@@ -3,4 +3,6 @@
  :crux {:db-spec #profile {:dev {:dbtype "sqlite"
                                  :dbname "dev.db"}
                            :prod {:dbtype "sqlite"
-                                  :dbname "prod.db"}}}}
+                                  :dbname "prod.db"}}}
+ :access {:jwt-key #or [#env JWT_KEY
+                        "UAWX9WK366IRDF5AQTRPX2I457AFTTU93PBB1QAJME107IKJM4A5HPW2I6PJRHB0"]}}

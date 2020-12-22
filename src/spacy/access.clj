@@ -5,11 +5,9 @@
             [net.cgrand.enlive-html :as html]
             [yada.yada :as yada]
             [yada.security]
-            [spacy.config :as config]
-            [environ.core :as env]))
+            [spacy.config :as config]))
 
-(def jwt-key (or (env/env :jwt-key)
-                 "UAWX9WK366IRDF5AQTRPX2I457AFTTU93PBB1QAJME107IKJM4A5HPW2I6PJRHB0"))
+(def jwt-key (:jwt-key (:access (config/config :prod))))
 
 (def session "session")
 

@@ -88,8 +88,10 @@
       (assoc component :node node)))
 
   (stop [component]
-    (save-seeds! (crux/db node))
-    (.close node)
+    (log/debug "Stopping" node)
+    (when node
+      (save-seeds! (crux/db node))
+      (.close node))
     (dissoc component :node))
 
   data/Events

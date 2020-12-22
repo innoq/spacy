@@ -68,8 +68,12 @@
 
 (html/defsnippet new-session-snippet "templates/event/new-session.html"
   [:new-session]
-  [{::domain/keys [slug]}]
-  [:form] (html/set-attr :action (bidi/path-for routes ::submit-session :event-slug slug)))
+  [{::domain/keys [slug]} current-user]
+  [:form] (when current-user
+            (html/set-attr :action (bidi/path-for routes ::submit-session :event-slug slug)))
+  [:p :a] (html/set-attr :href (str (bidi/path-for routes ::login)
+                                "?redirect=" (bidi/path-for routes ::event :event-slug slug)))
+  [:p] (when-not current-user identity))
 
 (html/defsnippet session-snippet "templates/event/session.html"
   [:.session]
@@ -124,7 +128,7 @@
   [:title] (html/content event-name)
   [:h1] (html/content event-name)
   [:up-next] (html/substitute (up-next event current-user))
-  [:new-session] (html/substitute (new-session-snippet event))
+  [:new-session] (html/substitute (new-session-snippet event current-user))
   [:bulletin-board] (html/substitute (bulletin-board-snippet event current-user))
   [:waiting-queue] (html/substitute (waiting-queue-snippet event))
   [:template#session-template] (html/content (session-snippet {}))

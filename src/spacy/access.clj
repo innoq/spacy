@@ -5,7 +5,8 @@
             [net.cgrand.enlive-html :as html]
             [yada.yada :as yada]
             [yada.security]
-            [spacy.config :as config]))
+            [spacy.config :as config]
+            [spacy.messages :as messages]))
 
 (def jwt-key (:jwt-key (:access (config/config :prod))))
 
@@ -47,9 +48,11 @@
        (not (re-find #"://" s)))) ;; poor man's solution
 
 (html/deftemplate login-template "templates/login.html"
-  [redirect-url]
+  [redirect-url messages]
+  [(html/attr? :lang)] (html/set-attr :lang (:lang messages))
   [(html/attr= :name "redirect")] (when (is-relative-uri? redirect-url)
-                                      (html/set-attr :value redirect-url)))
+                                    (html/set-attr :value redirect-url))
+  [:msg] (messages/transformer messages))
 
 (defn login [system]
   (yada/handler
@@ -61,8 +64,9 @@
        :parameters {:query {(schema/optional-key :redirect) String}}
        :response
        (fn [ctx]
-         (let [{:keys [redirect]} (get-in ctx [:parameters :query])]
-           (apply str (login-template redirect))))}
+         (let [{:keys [redirect]} (get-in ctx [:parameters :query])
+               messages (messages/messages (messages/language ctx))]
+           (apply str (login-template redirect messages))))}
       :post
       {:consumes "application/x-www-form-urlencoded"
        :parameters {:form {(schema/optional-key :logout) String

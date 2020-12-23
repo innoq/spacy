@@ -1,10 +1,24 @@
 <!DOCTYPE html>
 <html lang="en">
   <body>
-    <up-next current-user up-next aria-live="polite">
-      <p role="status"></p>
+    <up-next current-user up-next>
+      <p data-status></p>
 
-      <template></template>
+      <template data-template="spacy.ui/up-next">
+        <p role="status" aria-live="polite">
+          <msg key="up-next.status.up-next"></msg>
+        </p>
+      </template>
+      <template data-template="spacy.ui/please-wait">
+        <p>
+          <msg key="up-next.status.please-wait"></msg>
+        </p>
+      </template>
+      <template data-template="spacy.ui/nobody-in-queue">
+        <p>
+          <msg key="up-next.status.nobody-in-queue"></msg>
+        </p>
+      </template>
     </up-next>
   </body>
 </html>

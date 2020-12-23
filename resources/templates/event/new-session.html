@@ -8,6 +8,15 @@
         <a><msg key="new-session.no-display-name.link"></msg></a>
         <msg key="new-session.no-display-name.2"></msg>
       </p>
+      <user-notifications current-user role="status" aria-live="polite">
+        <small></small>
+
+        <template data-fact="spacy.domain/session-suggested">
+          <span role="region" aria-live="polite">
+            <msg key="notifications.msg.session-suggested"></msg>
+          </span>
+        </template>
+      </user-notifications>
       <hijax-form>
           <form method="POST" action>
               <label>

@@ -2,22 +2,23 @@
 <html lang="en">
   <body>
     <new-session>
-      <h2 id="new-session">Suggest a new session</h2>
+      <h2 id="new-session"><msg key="new-session.heading"></msg></h2>
       <p>
-        We are glad you are joining our open space!
-        Please <a>set your display name</a> in order to be able to submit a session.
+        <msg key="new-session.no-display-name.1"></msg>
+        <a><msg key="new-session.no-display-name.link"></msg></a>
+        <msg key="new-session.no-display-name.2"></msg>
       </p>
       <hijax-form>
           <form method="POST" action>
               <label>
-                  Title
+                  <msg key="session.title"></msg>
                   <input type="text" name="title" required>
               </label>
               <label>
-                  Description
+                  <msg key="session.description"></msg>
                   <textarea name="description" required></textarea>
               </label>
-              <button type="submit">Submit Session</button>
+              <button type="submit"><msg key="new-session.submit"></msg></button>
           </form>
       </hijax-form>
     </new-session>

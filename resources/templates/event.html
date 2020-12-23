@@ -12,10 +12,10 @@
 
             <nav>
                 <ul>
-                    <li><a href="#new-session">Suggest a new session</a></li>
-                    <li><a href="#sessions">Sessions</a></li>
-                    <li><a href="#queue">Queue</a></li>
-                    <li class="js-only visually-hidden"><a href="#notifications">Notifications</a></li>
+                    <li><a href="#new-session"><msg key="new-session.heading"></msg></a></li>
+                    <li><a href="#sessions"><msg key="sessions.heading"></msg></a></li>
+                    <li><a href="#queue"><msg key="queue.heading"></msg></a></li>
+                    <li class="js-only visually-hidden"><a href="#notifications"><msg key="notifications.heading"></msg></a></li>
                 </ul>
             </nav>
         </header>
@@ -25,22 +25,20 @@
             <bulletin-board id="sessions"></bulletin-board>
             <waiting-queue id="queue"></waiting-queue>
             <user-notifications class="visually-hidden" current-user hidden role="log" aria-live="polite">
-                <h2 id="notifications">Notifications</h2>
+                <h2 id="notifications"><msg key="notifications.heading"></msg></h2>
                 <details open>
-                    <summary>Toggle Notifications</summary>
+                    <summary><msg key="notifications.toggle"></msg></summary>
                     <ul></ul>
                 </details>
 
                 <template data-template="spacy.domain/session-suggested">
                     <li>
-                        Your session "<span data-slot="title"></span>" was received and placed in the queue
-                        <div data-slot="at"></div>
+                        <msg key="notifications.msg.session-suggested"></msg>
                     </li>
                 </template>
                 <template data-template="spacy.domain/session-scheduled">
                     <li>
-                        The session "<span data-slot="title"></span>" from <span data-slot="sponsor"></span> has been scheduled at <span data-slot="time"></span> in
-                        <span data-slot="room"></span>
+                        <msg key="notifications.msg.session-scheduled"></msg>
                     </li>
                 </template>
             </user-notifications>

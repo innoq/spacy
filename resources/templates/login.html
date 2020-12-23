@@ -10,16 +10,16 @@
     </head>
     <body data-layout="centered">
         <main>
-            <h1>Tell us who you are!</h1>
+            <h1><msg key="login.h1"></msg></h1>
 
-            <p>Let us know the display name that you want to use when submitting sessions!</p>
+            <p><msg key="login.help"></msg></p>
             <form method="post">
                 <input type="hidden" name="redirect" value>
                 <label>
-                    Name
+                    <msg key="login.name"></msg>
                     <input type="text" name="name">
                 </label>
-                <button type="submit">Set Display Name</button>
+                <button type="submit"><msg key="login.submit"></msg></button>
             </form>
         </main>
     </body>

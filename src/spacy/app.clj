@@ -38,7 +38,7 @@
 (defn index [system]
   (handler-util/get-resource
    (fn [ctx]
-     (let [msgs (messages/messages (handler-util/language ctx))]
+     (let [msgs (messages/messages (messages/language ctx))]
        (apply str (index-template msgs))))))
 
 (defn is-up-next? [event current-user]
@@ -168,7 +168,7 @@
 (defn show-event [{:keys [data]}]
   (handler-util/get-resource
    (fn [ctx]
-     (let [messages (messages/messages (handler-util/language ctx))
+     (let [messages (messages/messages (messages/language ctx))
            slug (get-in ctx [:parameters :path :event-slug])
            current-user (access/current-user ctx)
            event (-> (data/fetch data slug)

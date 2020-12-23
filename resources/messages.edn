@@ -14,8 +14,6 @@
       :new-session.no-display-name.link "set your display name"
       :new-session.no-display-name.2 " in order to be able to submit a session."
       :new-session.submit "Submit Session"
-      :notifications.heading "Notifications"
-      :notifications.toggle "Toggle Notifications"
       :notifications.msg.session-suggested ["Your session \"" [:span {:data-slot "title"}] "\" was received and placed in the queue."]
       :notifications.msg.session-scheduled ["The session \"" [:span {:data-slot "title"}] "\" from " [:span {:data-slot "sponsor"}] " will take place on "
                                             [:span {:data-slot "time"}] " in the " [:span {:data-slot "room"}] " room."]
@@ -48,8 +46,6 @@
       :new-session.no-display-name.link "setze einen Anzeigename"
       :new-session.no-display-name.2 " bevor Du dein erstes Thema vorschlägst."
       :new-session.submit "Thema vorschlagen"
-      :notifications.heading "Nachrichten"
-      :notifications.toggle "Nachrichten ein/ausklappen"
       :notifications.msg.session-suggested ["Dein Thema \"" [:span {:data-slot "title"}] "\" wurde empfangen und ist jetzt in der Warteschlange."]
       :notifications.msg.session-scheduled ["Das Thema \"" [:span {:data-slot "title"}] "\" von " [:span {:data-slot "sponsor"}] " findet am "
                                             [:span {:data-slot "time"}] " im Raum " [:span {:data-slot "room"}] " statt."]

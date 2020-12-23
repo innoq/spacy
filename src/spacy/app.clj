@@ -9,7 +9,9 @@
    [spacy.domain :as domain]
    [spacy.data :as data]
    [spacy.access :as access]
-   [spacy.handler-util :as handler-util]))
+   [spacy.messages :as messages]
+   [spacy.handler-util :as handler-util]
+   [clojure.java.io :as io]))
 
 (def routes
   "Configured routes for the application as a bidi data structure"
@@ -26,14 +28,18 @@
   {"Februar Event 2021" (bidi/path-for routes ::event :event-slug "februar-2021-event")})
 
 (html/deftemplate index-template "templates/index.html"
-  []
+  [messages]
+  [(html/attr? :lang)] (html/set-attr :lang (:lang messages))
   [:ul [:li html/first-of-type]] (html/clone-for [[caption url] events]
                                                  [:li :a] (html/content caption)
-                                                 [:li :a] (html/set-attr :href url)))
+                                                 [:li :a] (html/set-attr :href url))
+  [:msg] (messages/transformer messages))
+
 (defn index [system]
   (handler-util/get-resource
    (fn [ctx]
-     (apply str (index-template)))))
+     (let [msgs (messages/messages (handler-util/language ctx))]
+       (apply str (index-template msgs))))))
 
 (defn is-up-next? [event current-user]
   (let [next-up (domain/next-up event)]

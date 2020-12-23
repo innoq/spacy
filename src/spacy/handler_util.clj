@@ -6,7 +6,8 @@
    [yada.yada :as yada]
    [spacy.domain :as domain]
    [spacy.access :as access]
-   [spacy.data :as data]))
+   [spacy.data :as data]
+   [org.tobereplaced.http-accept-headers :as accept-headers]))
 
 (defn handler-creator
   "Create a function which will retrieve the correct handler from the handler-map
@@ -31,6 +32,15 @@
   (let [all-routes (bidi/route-seq routes)
         route-map (into {} [routes])]
     (first (reduce (route-reducer system handler-map) route-map all-routes))))
+
+(defn language [ctx]
+  (let [accept-language (get-in ctx [:request :headers "accept-language"])]
+    (first (accept-headers/parse-accept-language
+            {"en-us" "en"
+             "en-gb" "en"
+             "*" "en-US"
+             "de-de" "de"
+             "de-ch" "de"} accept-language))))
 
 (defn get-resource
   "Wrapper for yada resource"

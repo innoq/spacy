@@ -19,7 +19,8 @@
    [juxt/crux-jdbc "20.09-1.12.1-beta"]
    [org.postgresql/postgresql "42.2.18"]
    [buddy/buddy-sign "3.2.0"]
-   [javax.xml.bind/jaxb-api "2.4.0-b180830.0359"]]
+   [javax.xml.bind/jaxb-api "2.4.0-b180830.0359"]
+   [org.tobereplaced/http-accept-headers "0.1.0"]]
   :repl-options {:init-ns user}
 
   :profiles {:dev {:dependencies [[org.clojure/tools.namespace "0.2.5"]

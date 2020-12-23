@@ -68,7 +68,7 @@
 
 (defn up-next [event current-user]
   (let [next-up (domain/next-up event)
-        title (get-in next-up [::domain/session ::domain/title])
+        title (get-in next-up [::domain/session ::domain/title] "")
         statuses (status-map title)
         status (current-status event current-user)
         values (assoc event :statuses statuses :status status)]

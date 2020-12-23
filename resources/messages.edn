@@ -26,7 +26,7 @@
       :session.description "Description"
       :session.move "Move Session"
       :sessions.heading "Sessions"
-      :up-next.status.up-next ["You are currently next in line! Please " [:a {:href "#sessions"} "select a slot"] " for your session \"${title}\""]
+      :up-next.status.up-next ["You are currently next in line! Please " [:a {:href "#sessions"} "select a slot"] " for your session \"${title}" [:span {:data-slot "title"}]"\""]
       :up-next.status.please-wait "Please wait for others to present their session"
       :up-next.status.nobody-in-queue "There are currently no sessions in the queue"}
  :de {:lang "de"
@@ -57,6 +57,6 @@
       :session.description "Beschreibung"
       :session.move "Umziehen"
       :sessions.heading "Zeitplan"
-      :up-next.status.up-next ["Du bist als nächstes dran! Bitte  " [:a {:href "#sessions"} " wähle einen Zeitslot"] " für dein Thema \"${title}\"."]
+      :up-next.status.up-next ["Du bist als nächstes dran! Bitte  " [:a {:href "#sessions"} " wähle einen Zeitslot"] " für dein Thema \"${title}" [:span {:data-slot "title"}] "\"."]
       :up-next.status.please-wait "Bitte warte während die anderen ihren Themen präsentieren."
       :up-next.status.nobody-in-queue "Es gibt aktuell keinen Themen in der Warteschlange"}}

@@ -34,10 +34,12 @@
 
 (defn get-resource
   "Wrapper for yada resource"
-  [response-fn]
+  [response-fn & {:keys [parameters]
+                  :or {parameters {}}}]
   (yada/handler
     (yada/resource
-      {:access-control access/control
+     {:access-control access/control
+      :parameters parameters
        :methods
        {:get
         {:produces {:media-type "text/html"}

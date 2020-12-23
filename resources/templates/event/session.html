@@ -10,13 +10,19 @@
       </details>
       <div class="toolbar" is-sponsor>
         <hijax-form>
-          <form method="POST" action>
+          <form data-command="delete-session" method="POST" action>
               <input type="hidden" name="id">
               <button>
                 Delete Session
               </button>
           </form>
         </hijax-form>
+        <form data-command="move-session" method="GET" action>
+          <input type="hidden" name="id">
+          <button>
+            Move Session
+          </button>
+        </form>
       </div>
     </div>
   </body>

@@ -3,13 +3,20 @@
             [clojure.java.io :as io]
             [net.cgrand.enlive-html :as html]))
 
-
 (defn messages [language]
   (let [msgs (-> (slurp (io/resource "messages.edn"))
                  edn/read-string)]
     (get msgs (keyword language) (:en msgs))))
 
+(defn replace [replacer message]
+  (cond
+    (string? message) (replacer message)
+    (sequential? message) (map replacer message)
+    :else message))
+
 (defn transformer [messages]
-  (fn [{:keys [attrs]}]
-    (let [key (:key attrs)]
-      (get messages (keyword key) key))))
+  (fn [{{:keys [key] :as attrs} :attrs :as node}]
+    (let [params (dissoc attrs :key)
+          message (get messages (keyword key) key)
+          with-vars (replace (html/replace-vars params) message)]
+      (apply html/html with-vars))))

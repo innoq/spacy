@@ -52,9 +52,9 @@
     :else                            ::nobody-in-queue))
 
 (defn status-map [title]
-  {::up-next [:span "You are currently next in line! Please " [:a {:href "#sessions"} "select a slot"] " for your session \"" title "\""]
-   ::please-wait "Please wait for others to present their session"
-   ::nobody-in-queue "There are currently no sessions in the queue"})
+  {::up-next [:msg {:key "up-next.status.up-next" :title title}]
+   ::please-wait [:msg {:key "up-next.status.please-wait"}]
+   ::nobody-in-queue [:msg {:key "up-next.status.nobody-in-queue"}]})
 
 (html/defsnippet up-next-snippet "templates/event/up-next.html"
   [:up-next]
@@ -118,8 +118,8 @@
   [(html/attr= :name "id")] (html/set-attr :value (::domain/id session))
   [(html/attr= :name "room")] (html/set-attr :value room)
   [(html/attr= :name "time")] (html/set-attr :value time)
-  [(html/attr= :data-slot "room")] (html/content room)
-  [(html/attr= :data-slot "time")] (html/content time))
+  [(html/attr? :room)] (html/set-attr :room room)
+  [(html/attr? :time)] (html/set-attr :time time))
 
 (html/defsnippet bulletin-board-snippet "templates/event/bulletin-board.html"
   [:bulletin-board]
@@ -145,7 +145,8 @@
     (schedule-session-snippet event session room time)))
 
 (html/deftemplate event-template "templates/event.html"
-  [{:keys [event-name] ::domain/keys [slug] :as event} current-user]
+  [{:keys [event-name] ::domain/keys [slug] :as event} current-user messages]
+  [(html/attr? :lang)] (html/set-attr :lang (:lang messages))
   [:title] (html/content event-name)
   [:h1] (html/content event-name)
   [:up-next] (html/substitute (up-next event current-user))
@@ -157,7 +158,8 @@
   [:waiting-queue] (html/substitute (waiting-queue-snippet event current-user))
   [:template#session-template] (html/content (session-snippet event {::domain/sponsor current-user} current-user))
   [(html/attr? :current-user)] (html/set-attr :current-user current-user)
-  [:fact-handler] (html/set-attr :uri (bidi/path-for routes ::sse :event-slug slug)))
+  [:fact-handler] (html/set-attr :uri (bidi/path-for routes ::sse :event-slug slug))
+  [:msg] (messages/transformer messages))
 
 (defn event-view-model [{:keys [current-user] :as event}]
   (-> event
@@ -166,11 +168,12 @@
 (defn show-event [{:keys [data]}]
   (handler-util/get-resource
    (fn [ctx]
-     (let [slug (get-in ctx [:parameters :path :event-slug])
+     (let [messages (messages/messages (handler-util/language ctx))
+           slug (get-in ctx [:parameters :path :event-slug])
            current-user (access/current-user ctx)
            event (-> (data/fetch data slug)
                      event-view-model)]
-       (apply str (event-template event current-user))))))
+       (apply str (event-template event current-user messages))))))
 
 (defn event-path [slug]
   (bidi/path-for routes ::event :event-slug slug))

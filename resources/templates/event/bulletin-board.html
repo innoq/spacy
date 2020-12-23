@@ -2,7 +2,7 @@
 <html lang="en">
   <body>
     <bulletin-board>
-      <h2 id="sessions">Sessions</h2>
+      <h2 id="sessions"><msg key="sessions.heading"></msg></h2>
       <div class="schedule">
           <div class="horizontal-scroll">
             <!-- The redundant roles are because when we style the table using CSS grid on
@@ -29,15 +29,5 @@
           <h-include src fragment="bulletin-board .schedule"></h-include>
       </template>
     </bulletin-board>
-    <hijax-form>
-      <form method="POST" action>
-          <input type="hidden" name="id" value>
-          <input type="hidden" name="room" value>
-          <input type="hidden" name="time" value>
-          <button>
-              Choose Slot <span class="visually-hidden">Room {{room}}, Time {{time}}</span>
-          </button>
-      </form>
-    </hijax-form>
   </body>
 </html>

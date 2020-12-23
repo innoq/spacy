@@ -212,15 +212,18 @@
 (html/deftemplate move-session-template "templates/move-session.html"
   [{::domain/keys [slug] :as event}
    current-user
-   {{::domain/keys [id]} ::domain/session :as active-session}]
+   {{::domain/keys [id]} ::domain/session :as active-session}
+   messages]
+  [(html/attr? :lang)] (html/set-attr :lang (:lang messages))
   [:.session] (html/substitute (session-snippet event active-session current-user))
   [:bulletin-board] (html/substitute (bulletin-board-snippet event current-user
                                                              :action move-session-action
                                                              :active-session active-session
                                                              :page-link (str (bidi/path-for routes ::move-session :event-slug slug) "?id=" id)))
   [:.session :.toolbar] nil
-  [:bulletin-board (html/attr= :data-id id)] (html/substitute (html/html [:small "Your session is currently here"]))
-  [:fact-handler] (html/set-attr :uri (bidi/path-for routes ::sse :event-slug slug)))
+  [:bulletin-board (html/attr= :data-id id)] (html/substitute (html/html [:small [:msg {:key "move-session.current-position"}]]))
+  [:fact-handler] (html/set-attr :uri (bidi/path-for routes ::sse :event-slug slug))
+  [:msg] (messages/transformer messages))
 
 (defn move-session [{:keys [data]}]
   (fn [req]
@@ -231,8 +234,9 @@
                                   session-id (get-in ctx [:parameters :query :id])
                                   current-user (access/current-user ctx)
                                   event (data/fetch data slug)
-                                  active-session (domain/find-in-schedule-by-id session-id event)]
-                              (apply str (move-session-template event current-user active-session))))
+                                  active-session (domain/find-in-schedule-by-id session-id event)
+                                  messages (messages/messages (messages/language ctx))]
+                              (apply str (move-session-template event current-user active-session messages))))
                           :parameters {:query {:id java.util.UUID}})
                     :post (handler-util/command
                            :data data

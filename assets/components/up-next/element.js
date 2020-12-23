@@ -1,4 +1,5 @@
 import { fillTemplate } from "../util/template";
+import { replaceNode } from "uitil/dom";
 
 export class UpNext extends HTMLElement {
   connectedCallback() {
@@ -26,12 +27,11 @@ export class UpNext extends HTMLElement {
   }
 
   swapContent(content) {
-    this.statusElement.innerHTML = "";
-    this.statusElement.appendChild(content);
+    replaceNode(this.p, content);
   }
 
-  get statusElement() {
-    return this.querySelector("[role=status]");
+  get p() {
+    return this.querySelector("p");
   }
 
   get currentUser() {

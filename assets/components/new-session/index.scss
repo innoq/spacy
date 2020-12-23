@@ -2,4 +2,9 @@ new-session {
   button {
     @extend %button-primary;
   }
+
+  user-notifications {
+    display: block;
+    margin-bottom: $spacer-sm;
+  }
 }

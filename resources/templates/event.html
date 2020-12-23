@@ -23,26 +23,21 @@
             <up-next></up-next>
             <new-session id="new-session"></new-session>
             <bulletin-board id="sessions"></bulletin-board>
-            <waiting-queue id="queue"></waiting-queue>
-            <user-notifications class="visually-hidden" current-user hidden role="log" aria-live="polite">
-                <h2 id="notifications"><msg key="notifications.heading"></msg></h2>
-                <details open>
-                    <summary><msg key="notifications.toggle"></msg></summary>
-                    <ul></ul>
-                </details>
+            <user-notifications current-user role="status" aria-live="polite" notify-all>
+                <small></small>
 
-                <template data-template="spacy.domain/session-suggested">
-                    <li>
-                        <msg key="notifications.msg.session-suggested"></msg>
-                    </li>
-                </template>
-                <template data-template="spacy.domain/session-scheduled">
-                    <li>
+                <template data-fact="spacy.domain/session-scheduled">
+                    <span role="region" aria-role="polite">
                         <msg key="notifications.msg.session-scheduled"></msg>
-                    </li>
+                    </span>
+                </template>
+                <template data-fact="spacy.domain/session-moved">
+                    <span role="region" aria-role="polite">
+                        <msg key="notifications.msg.session-moved"></msg>
+                    </span>
                 </template>
             </user-notifications>
-
+            <waiting-queue id="queue"></waiting-queue>
 
             <template id="session-template">
                 <li>

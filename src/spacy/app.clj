@@ -51,28 +51,21 @@
     (domain/next-up event)           ::please-wait
     :else                            ::nobody-in-queue))
 
-(defn status-map [title]
-  {::up-next [:msg {:key "up-next.status.up-next" :title title}]
-   ::please-wait [:msg {:key "up-next.status.please-wait"}]
-   ::nobody-in-queue [:msg {:key "up-next.status.nobody-in-queue"}]})
-
 (html/defsnippet up-next-snippet "templates/event/up-next.html"
   [:up-next]
-  [{:keys [statuses status] :as event} current-user]
+  [{:keys [title status] :as event} current-user messages]
   [:up-next] (html/set-attr :current-user current-user
                             :up-next (is-up-next? event current-user))
-  [:p] (html/content (html/html (get statuses status)))
-  [:template] (html/clone-for [[status content] statuses]
-                              [:template] (html/set-attr :data-template (str "spacy.ui/" (name status)))
-                              [:template] (html/content (html/html content))))
+  [(html/attr? :data-status)] (html/content (html/html [:msg {:key (str "up-next.status." (name status))}]))
+  [:msg] (messages/transformer messages)
+  [(html/attr= :data-slot "title")] (html/content title))
 
-(defn up-next [event current-user]
+(defn up-next [event current-user messages]
   (let [next-up (domain/next-up event)
         title (get-in next-up [::domain/session ::domain/title] "")
-        statuses (status-map title)
         status (current-status event current-user)
-        values (assoc event :statuses statuses :status status)]
-    (up-next-snippet values current-user)))
+        values (assoc event :title title :status status)]
+    (up-next-snippet values current-user messages)))
 
 (html/defsnippet new-session-snippet "templates/event/new-session.html"
   [:new-session]
@@ -149,7 +142,7 @@
   [(html/attr? :lang)] (html/set-attr :lang (:lang messages))
   [:title] (html/content event-name)
   [:h1] (html/content event-name)
-  [:up-next] (html/substitute (up-next event current-user))
+  [:up-next] (html/substitute (up-next event current-user messages))
   [:new-session] (html/substitute (new-session-snippet event current-user))
   [:bulletin-board] (html/substitute (bulletin-board-snippet event current-user
                                                              :action schedule-session-action

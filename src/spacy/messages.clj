@@ -21,7 +21,7 @@
 (defn replace [replacer message]
   (cond
     (string? message) (replacer message)
-    (sequential? message) (map replacer message)
+    (sequential? message) (mapv replacer message)
     :else message))
 
 (defn transformer [messages]

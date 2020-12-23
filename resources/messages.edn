@@ -19,6 +19,8 @@
       :notifications.msg.session-suggested ["Your session \"" [:span {:data-slot "title"}] "\" was received and placed in the queue."]
       :notifications.msg.session-scheduled ["The session \"" [:span {:data-slot "title"}] "\" from " [:span {:data-slot "sponsor"}] " will take place on "
                                             [:span {:data-slot "time"}] " in the " [:span {:data-slot "room"}] " room."]
+      :notifications.msg.session-moved ["The session \"" [:span {:data-slot "title"}] "\" from " [:span {:data-slot "sponsor"}] " will has moved to the "
+                                        [:span {:data-slot "room"}] " room on " [:span {:data-slot "time"}] "."]
       :open-spaces "Open Spaces"
       :queue.heading "Queue"
       :session.title "Title"
@@ -26,7 +28,7 @@
       :session.description "Description"
       :session.move "Move Session"
       :sessions.heading "Sessions"
-      :up-next.status.up-next ["You are currently next in line! Please " [:a {:href "#sessions"} "select a slot"] " for your session \"${title}" [:span {:data-slot "title"}]"\""]
+      :up-next.status.up-next ["You are currently next in line! Please " [:a {:href "#sessions"} "select a slot"] " for your session \"" [:span {:data-slot "title"}] "\""]
       :up-next.status.please-wait "Please wait for others to present their session"
       :up-next.status.nobody-in-queue "There are currently no sessions in the queue"}
  :de {:lang "de"
@@ -51,12 +53,14 @@
       :notifications.msg.session-suggested ["Dein Thema \"" [:span {:data-slot "title"}] "\" wurde empfangen und ist jetzt in der Warteschlange."]
       :notifications.msg.session-scheduled ["Das Thema \"" [:span {:data-slot "title"}] "\" von " [:span {:data-slot "sponsor"}] " findet am "
                                             [:span {:data-slot "time"}] " im Raum " [:span {:data-slot "room"}] " statt."]
+      :notifications.msg.session-moved ["Das Thema \"" [:span {:data-slot "title"}] "\" von " [:span {:data-slot "sponsor"}] " wird jetzt im Raum "
+                                        [:span {:data-slot "room"}] " am " [:span {:data-slot "time"}] " stattfinden."]
       :queue.heading "Warteschlange"
       :session.title "Titel"
       :session.delete "Löschen"
       :session.description "Beschreibung"
       :session.move "Umziehen"
       :sessions.heading "Zeitplan"
-      :up-next.status.up-next ["Du bist als nächstes dran! Bitte  " [:a {:href "#sessions"} " wähle einen Zeitslot"] " für dein Thema \"${title}" [:span {:data-slot "title"}] "\"."]
+      :up-next.status.up-next ["Du bist als nächstes dran! Bitte  " [:a {:href "#sessions"} " wähle einen Zeitslot"] " für dein Thema \"" [:span {:data-slot "title"}] "\"."]
       :up-next.status.please-wait "Bitte warte während die anderen ihren Themen präsentieren."
       :up-next.status.nobody-in-queue "Es gibt aktuell keinen Themen in der Warteschlange"}}

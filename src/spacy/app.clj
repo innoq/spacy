@@ -117,7 +117,8 @@
 
 (html/defsnippet bulletin-board-snippet "templates/event/bulletin-board.html"
   [:bulletin-board]
-  [{::domain/keys [schedule rooms times slug] :as event} current-user action active-session page-link]
+  [{::domain/keys [schedule rooms times slug] :as event} current-user
+   & {:keys [action active-session page-link]}]
   [:h-include] (html/set-attr :src page-link)
   [:table :thead [(html/attr= :scope "col")]] (html/clone-for [r rooms]
                                                            [:th] (html/content r))
@@ -143,9 +144,10 @@
   [:h1] (html/content event-name)
   [:up-next] (html/substitute (up-next event current-user))
   [:new-session] (html/substitute (new-session-snippet event current-user))
-  [:bulletin-board] (html/substitute (bulletin-board-snippet event current-user schedule-session-action
-                                                             (domain/next-up event)
-                                                             (bidi/path-for routes ::event :event-slug slug)))
+  [:bulletin-board] (html/substitute (bulletin-board-snippet event current-user
+                                                             :action schedule-session-action
+                                                             :active-session (domain/next-up event)
+                                                             :page-link (bidi/path-for routes ::event :event-slug slug)))
   [:waiting-queue] (html/substitute (waiting-queue-snippet event current-user))
   [:template#session-template] (html/content (session-snippet event {::domain/sponsor current-user} current-user))
   [(html/attr? :current-user)] (html/set-attr :current-user current-user)
@@ -203,9 +205,10 @@
    current-user
    {{::domain/keys [id]} ::domain/session :as active-session}]
   [:.session] (html/substitute (session-snippet event active-session current-user))
-  [:bulletin-board] (html/substitute (bulletin-board-snippet event current-user move-session-action
-                                                             active-session
-                                                             (str (bidi/path-for routes ::move-session :event-slug slug) "?id=" id)))
+  [:bulletin-board] (html/substitute (bulletin-board-snippet event current-user
+                                                             :action move-session-action
+                                                             :active-session active-session
+                                                             :page-link (str (bidi/path-for routes ::move-session :event-slug slug) "?id=" id)))
   [:.session :.toolbar] nil
   [:bulletin-board (html/attr= :data-id id)] (html/substitute (html/html [:small "Your session is currently here"]))
   [:fact-handler] (html/set-attr :uri (bidi/path-for routes ::sse :event-slug slug)))

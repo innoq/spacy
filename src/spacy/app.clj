@@ -81,15 +81,18 @@
   [:.session]
   [{::domain/keys [slug]}
    {::domain/keys [sponsor]
-    {::domain/keys [title id description]} ::domain/session}
-   current-user]
+    {::domain/keys [title id description] :as session} ::domain/session}
+   current-user
+   & {:keys [move-action?]}]
   [(html/attr? :data-id)] (html/set-attr :data-id id)
   [(html/attr= :data-slot "title")] (html/content title)
   [(html/attr= :id "title")] (html/set-attr :id (str "title" id))
   [(html/attr= :aria-labelledby "title")] (html/set-attr :aria-labelledby (str "title" id))
   [(html/attr= :data-slot "sponsor")] (html/content sponsor)
   [(html/attr= :data-slot "description")] (html/content description)
-  [:form] (html/set-attr :action (bidi/path-for routes ::delete-session :event-slug slug))
+  [(html/attr= :data-command "delete-session")] (html/set-attr :action (bidi/path-for routes ::delete-session :event-slug slug))
+  [(html/attr= :data-command "move-session")] (when move-action?
+                                                (html/set-attr :action (bidi/path-for routes ::move-session :event-slug slug)))
   [(html/attr= :name "id")] (html/set-attr :value id)
   [(html/attr? :is-sponsor)] (when (= current-user sponsor) identity))
 
@@ -114,8 +117,8 @@
 
 (html/defsnippet bulletin-board-snippet "templates/event/bulletin-board.html"
   [:bulletin-board]
-  [{::domain/keys [schedule rooms times slug] :as event} current-user action]
-  [:h-include] (html/set-attr :src (bidi/path-for routes ::event :event-slug slug))
+  [{::domain/keys [schedule rooms times slug] :as event} current-user action active-session page-link]
+  [:h-include] (html/set-attr :src page-link)
   [:table :thead [(html/attr= :scope "col")]] (html/clone-for [r rooms]
                                                            [:th] (html/content r))
   [:table :tbody [:tr]] (html/clone-for [t times]
@@ -126,13 +129,13 @@
                                                                                    :data-room r)
                                                               [:td] (html/append (let [s (domain/find-session-for-slot event r t)]
                                                                                    (when s
-                                                                                     (session-snippet event s current-user))))
-                                                              [:td] (html/append (action event current-user r t)))))
+                                                                                     (session-snippet event s current-user :move-action? true))))
+                                                              [:td] (html/append (action event current-user active-session r t)))))
 
-(defn schedule-session-action [event current-user room time]
+(defn schedule-session-action [event current-user session room time]
   (when (and (is-up-next? event current-user)
              (domain/is-open-slot? event room time))
-    (schedule-session-snippet event (domain/next-up event) room time)))
+    (schedule-session-snippet event session room time)))
 
 (html/deftemplate event-template "templates/event.html"
   [{:keys [event-name] ::domain/keys [slug] :as event} current-user]
@@ -140,16 +143,17 @@
   [:h1] (html/content event-name)
   [:up-next] (html/substitute (up-next event current-user))
   [:new-session] (html/substitute (new-session-snippet event current-user))
-  [:bulletin-board] (html/substitute (bulletin-board-snippet event current-user schedule-session-action))
+  [:bulletin-board] (html/substitute (bulletin-board-snippet event current-user schedule-session-action
+                                                             (domain/next-up event)
+                                                             (bidi/path-for routes ::event :event-slug slug)))
   [:waiting-queue] (html/substitute (waiting-queue-snippet event current-user))
   [:template#session-template] (html/content (session-snippet event {::domain/sponsor current-user} current-user))
   [(html/attr? :current-user)] (html/set-attr :current-user current-user)
   [:fact-handler] (html/set-attr :uri (bidi/path-for routes ::sse :event-slug slug)))
 
 (defn event-view-model [{:keys [current-user] :as event}]
-  (let [next-up (first (::domain/waiting-queue event))]
-    (-> event
-        (assoc :event-name "Februar 2021 Event"))))
+  (-> event
+      (assoc :event-name "Februar 2021 Event")))
 
 (defn show-event [{:keys [data]}]
   (handler-util/get-resource
@@ -157,7 +161,6 @@
      (let [slug (get-in ctx [:parameters :path :event-slug])
            current-user (access/current-user ctx)
            event (-> (data/fetch data slug)
-                     (assoc :current-user current-user)
                      event-view-model)]
        (apply str (event-template event current-user))))))
 
@@ -178,15 +181,53 @@
    :command domain/schedule-session
    :redirect-to event-path))
 
+(html/defsnippet move-session-snippet "templates/event/commands.html"
+  [(html/attr= :data-command "move-session")]
+  [{::domain/keys [slug]}
+   {::domain/keys [session]}
+   room
+   time]
+  [:form] (html/set-attr :action (bidi/path-for routes ::move-session :event-slug slug))
+  [(html/attr= :name "id")] (html/set-attr :value (::domain/id session))
+  [(html/attr= :name "room")] (html/set-attr :value room)
+  [(html/attr= :name "time")] (html/set-attr :value time)
+  [(html/attr= :data-slot "room")] (html/content room)
+  [(html/attr= :data-slot "time")] (html/content time))
+
+(defn move-session-action [event current-user session room time]
+  (when (and session (domain/is-open-slot? event room time))
+    (move-session-snippet event session room time)))
+
+(html/deftemplate move-session-template "templates/move-session.html"
+  [{::domain/keys [slug] :as event}
+   current-user
+   {{::domain/keys [id]} ::domain/session :as active-session}]
+  [:.session] (html/substitute (session-snippet event active-session current-user))
+  [:bulletin-board] (html/substitute (bulletin-board-snippet event current-user move-session-action
+                                                             active-session
+                                                             (str (bidi/path-for routes ::move-session :event-slug slug) "?id=" id)))
+  [:.session :.toolbar] nil
+  [:bulletin-board (html/attr= :data-id id)] (html/substitute (html/html [:small "Your session is currently here"]))
+  [:fact-handler] (html/set-attr :uri (bidi/path-for routes ::sse :event-slug slug)))
+
 (defn move-session [{:keys [data]}]
   (fn [req]
-    (case (:request-method req)
-      :get {:status 200 :body "HI!"}
-      :post (handler-util/command
-             :data data
-             :parameters {:form {:room String :time String :id java.util.UUID}}
-             :command domain/move-session
-             :redirect-to event-path))))
+    (let [handler (case (:request-method req)
+                    :get (handler-util/get-resource
+                          (fn [ctx]
+                            (let [slug (get-in ctx [:parameters :path :event-slug])
+                                  session-id (get-in ctx [:parameters :query :id])
+                                  current-user (access/current-user ctx)
+                                  event (data/fetch data slug)
+                                  active-session (domain/find-in-schedule-by-id session-id event)]
+                              (apply str (move-session-template event current-user active-session))))
+                          :parameters {:query {:id java.util.UUID}})
+                    :post (handler-util/command
+                           :data data
+                           :parameters {:form {:room String :time String :id java.util.UUID}}
+                           :command domain/move-session
+                           :redirect-to event-path))]
+      (handler req))))
 
 (defn delete-session [{:keys [data]}]
   (handler-util/command

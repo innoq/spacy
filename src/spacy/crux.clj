@@ -42,8 +42,10 @@
         new-facts (->> facts
                        (map (partial add-event-id event-id))
                        (map maybe-add-crux-id))]
-    (crux/submit-tx node (for [doc (cons event new-facts)]
-                           [:crux.tx/put doc]))))
+    (crux/await-tx
+     node
+     (crux/submit-tx node (for [doc (cons event new-facts)]
+                            [:crux.tx/put doc])))))
 
 (defn- seed! [node]
   (let [event (-> (slurp "session.edn")

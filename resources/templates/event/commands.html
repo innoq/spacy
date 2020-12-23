@@ -11,5 +11,13 @@
           </button>
       </form>
     </hijax-form>
+    <form method="POST" data-command="move-session" action>
+      <input type="hidden" name="id" value>
+      <input type="hidden" name="room" value>
+      <input type="hidden" name="time" value>
+      <button>
+          Move to slot <span class="visually-hidden">Room <span data-slot="room"></span>, Time <span data-slot="time"></span>
+      </button>
+    </form>
   </body>
 </html>

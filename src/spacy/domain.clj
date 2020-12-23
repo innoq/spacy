@@ -183,7 +183,7 @@
        (filter #(= id (get-in % [::session ::id])))
        first))
 
-(defn- find-in-schedule-by-id [id {::keys [schedule]}]
+(defn find-in-schedule-by-id [id {::keys [schedule]}]
   (->> schedule
        (filter #(= id (get-in % [::session ::id])))
        first))

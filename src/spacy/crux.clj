@@ -30,6 +30,14 @@
             (s/explain-str ::domain/event event))
     event))
 
+
+(defn- all-slugs [db]
+  (let [found (crux/q db
+                      {:find '[name slug]
+                       :where '[[e ::domain/slug slug]
+                                [e ::domain/name name]]})]
+    (seq found)))
+
 (defn- add-event-id [event-id doc]
   (assoc doc ::belongs-to-event event-id))
 
@@ -114,6 +122,9 @@
   data/Events
   (fetch [component slug]
     (fetch (crux/db node) slug))
+
+  (all-slugs [component]
+    (all-slugs (crux/db node)))
 
   (persist! [component outcome]
     (persist! node outcome)))

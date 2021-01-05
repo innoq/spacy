@@ -24,22 +24,25 @@
                             "move-session" ::move-session
                             "delete-session" {:post {"" ::delete-session}}}}])
 
-(def events
-  {"Februar Event 2021" (bidi/path-for routes ::event :event-slug "februar-2021-event")})
+(defn- slugs-to-paths [all-slugs]
+  (for [[name slug] all-slugs]
+    [name (bidi/path-for routes ::event :event-slug slug)]))
 
 (html/deftemplate index-template "templates/index.html"
-  [messages]
+  [messages paths]
   [(html/attr? :lang)] (html/set-attr :lang (:lang messages))
-  [:ul [:li html/first-of-type]] (html/clone-for [[caption url] events]
-                                                 [:li :a] (html/content caption)
-                                                 [:li :a] (html/set-attr :href url))
+  [:ul [:li html/first-of-type]] (html/clone-for
+                                   [[caption url] paths]
+                                   [:li :a] (html/content caption)
+                                   [:li :a] (html/set-attr :href url))
   [:msg] (messages/transformer messages))
 
-(defn index [system]
+(defn index [{:keys [data]}]
   (handler-util/get-resource
    (fn [ctx]
-     (let [msgs (messages/messages (messages/language ctx))]
-       (apply str (index-template msgs))))))
+     (let [paths (slugs-to-paths (data/all-slugs data))
+           msgs (messages/messages (messages/language ctx))]
+       (apply str (index-template msgs paths))))))
 
 (defn is-up-next? [event current-user]
   (let [next-up (domain/next-up event)]

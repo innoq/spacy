@@ -1,5 +1,6 @@
 {:spacy.domain/slug "februar-2021-event",
  :spacy.domain/waiting-queue [],
+ :spacy.domain/name "Februar 2021 Event",
  :spacy.domain/rooms
  ["Berlin"
   "Monheim"

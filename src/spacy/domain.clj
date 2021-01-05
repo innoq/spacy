@@ -20,6 +20,7 @@
   (s/keys :req [::waiting-queue
                 ::times
                 ::rooms
+                ::name
                 ::schedule
                 ::slug]))
 
@@ -31,6 +32,9 @@
 
 (s/def ::rooms
   (s/coll-of ::room))
+
+(s/def ::name
+  string?)
 
 (s/def ::waiting-queue
   (s/coll-of ::queued-session))
@@ -229,6 +233,7 @@
                                    ::id (random-uuid)}}]
       ::rooms ["Berin" "Monheim"]
       ::times ["10:00 – 11:00"]
+      ::name "example event"
       ::schedule [{::sponsor "jans"
                    ::session {::title "Idris"
                               ::description "Ich liebe Typen"

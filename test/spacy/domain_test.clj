@@ -12,6 +12,7 @@
                                           #:spacy.domain{:title "Responsive and Accessible"
                                                          :description "Responsible!"
                                                          :id next-up}}]
+   ::domain/name "test event"
    ::domain/rooms ["Berlin" "Monheim"]
    ::domain/times ["10:00 - 11:00" "11:00 - 12:00"]
    ::domain/schedule [#:spacy.domain{:sponsor "jans"

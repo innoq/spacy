@@ -138,10 +138,10 @@
     (schedule-session-snippet event session room time)))
 
 (html/deftemplate event-template "templates/event.html"
-  [{:keys [event-name] ::domain/keys [slug] :as event} current-user messages]
+  [{::domain/keys [name slug] :as event} current-user messages]
   [(html/attr? :lang)] (html/set-attr :lang (:lang messages))
-  [:title] (html/content event-name)
-  [:h1] (html/content event-name)
+  [:title] (html/content name)
+  [:h1] (html/content name)
   [:up-next] (html/substitute (up-next event current-user messages))
   [:new-session] (html/substitute (new-session-snippet event current-user))
   [:bulletin-board] (html/substitute (bulletin-board-snippet event current-user
@@ -154,18 +154,13 @@
   [:fact-handler] (html/set-attr :uri (bidi/path-for routes ::sse :event-slug slug))
   [:msg] (messages/transformer messages))
 
-(defn event-view-model [{:keys [current-user] :as event}]
-  (-> event
-      (assoc :event-name "Februar 2021 Event")))
-
 (defn show-event [{:keys [data]}]
   (handler-util/get-resource
    (fn [ctx]
      (let [messages (messages/messages (messages/language ctx))
            slug (get-in ctx [:parameters :path :event-slug])
            current-user (access/current-user ctx)
-           event (-> (data/fetch data slug)
-                     event-view-model)]
+           event (data/fetch data slug)]
        (apply str (event-template event current-user messages))))))
 
 (defn event-path [slug]

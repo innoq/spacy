@@ -1,5 +1,6 @@
 (ns spacy.crux
   (:require [crux.api :as crux]
+            [clojure.java.io :as io]
             [clojure.edn :as edn]
             [clojure.pprint :refer [pprint]]
             [clojure.spec.alpha :as s]
@@ -55,20 +56,16 @@
      (crux/submit-tx node (for [doc (cons event new-facts)]
                             [:crux.tx/put doc])))))
 
-(defn- seed! [node]
-  (let [event (-> (slurp "session.edn")
-                  edn/read-string
-                  maybe-add-crux-id)]
-    (assert (s/valid? ::domain/event event)
-            (s/explain-str ::domain/event event))
-    (crux/submit-tx node [[:crux.tx/put event]])))
+(defn- maybe-seed! [node]
+  (when-let [events (some->> (io/resource "seeds.edn")
+                             slurp
+                             edn/read-string
+                             (map maybe-add-crux-id))]
+    (doseq [event events]
+      (assert (s/valid? ::domain/event event)
+              (s/explain-str ::domain/event event))
+      (crux/submit-tx node [[:crux.tx/put event]]))))
 
-(defn- save-seeds! [db]
-  (let [slug (ffirst (crux/q db
-                             {:find '[slug]
-                              :where '[[e ::domain/slug slug]]}))
-        entity (fetch db slug)]
-    (spit "session.edn" (with-out-str (pprint entity)))))
 
 (defn- interpret [crux-event]
   (let [ops (:crux/tx-ops crux-event)
@@ -103,21 +100,23 @@
    :crux/document-store {:crux/module 'crux.jdbc/->document-store
                          :connection-pool :crux.jdbc/connection-pool}})
 
-(defrecord Crux [config node]
+(defrecord Crux [config node listener]
   component/Lifecycle
   (start [component]
     (log/debug "Starting" component)
     (let [node (crux/start-node (opts config))]
-      (seed! node)
-      (subscribe! node (:fact-channel component))
-      (assoc component :node node)))
+      (maybe-seed! node)
+      (assoc component
+             :listener (subscribe! node (:fact-channel component))
+             :node node)))
 
   (stop [component]
     (log/debug "Stopping" node)
+    (when listener
+      (.close listener))
     (when node
-      (save-seeds! (crux/db node))
       (.close node))
-    (dissoc component :node))
+    (assoc component :node nil :listener nil))
 
   data/Events
   (fetch [component slug]

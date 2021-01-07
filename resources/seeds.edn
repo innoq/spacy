@@ -1,0 +1,34 @@
+[{:spacy.domain/slug "februar-2021-event",
+  :spacy.domain/waiting-queue
+  [#:spacy.domain{:sponsor "nobody",
+                  :session
+                  #:spacy.domain{:id
+                                 #uuid "b6db3b74-9c08-462d-b19f-a41b8c30d2df",
+                                 :title "Integration",
+                                 :description "Test"}}
+   #:spacy.domain{:sponsor "nobody",
+                  :session
+                  #:spacy.domain{:id
+                                 #uuid "76a98a4f-b110-4d72-ab09-ac6537f36b68",
+                                 :title "Integration",
+                                 :description "Test"}}],
+  :spacy.domain/name "Februar 2021 Event",
+  :spacy.domain/rooms
+  ["Berlin"
+   "Monheim"
+   "München"
+   "Offenbach"
+   "Zürich"
+   "Backup 1"
+   "Backup 2"
+   "Backup 3"],
+  :spacy.domain/times
+  ["Donnerstag 13:00 - 14:00"
+   "Donnerstag 14:30 - 15:30"
+   "Donnerstag 16:00 - 17:00"
+   "Freitag 13:00 - 14:00"
+   "Freitag 14:30 - 15:30"
+   "Freitag 16:00 - 17:00"],
+  :spacy.domain/schedule [],
+  :spacy.domain/facts [],
+  :crux.db/id #uuid "6c80dcd5-3d52-4635-9c15-fcfe4787ded2"}]

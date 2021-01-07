@@ -39,6 +39,5 @@ COPY --from=lein /home/spacy/classpath ./classpath
 COPY --from=faucet /app/resources/public resources/public/
 COPY resources resources/
 COPY src src/
-COPY session.edn .
 
 CMD java -cp $(cat classpath) clojure.main -m spacy.main

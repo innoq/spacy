@@ -1,4 +1,5 @@
 [{:spacy.domain/slug "februar-2021-event",
+  :spacy.domain/name "Februar 2021 Event",
   :spacy.domain/waiting-queue
   [#:spacy.domain{:sponsor "nobody",
                   :session
@@ -12,7 +13,6 @@
                                  #uuid "76a98a4f-b110-4d72-ab09-ac6537f36b68",
                                  :title "Integration",
                                  :description "Test"}}],
-  :spacy.domain/name "Februar 2021 Event",
   :spacy.domain/rooms
   ["Berlin"
    "Monheim"
@@ -29,6 +29,4 @@
    "Freitag 13:00 - 14:00"
    "Freitag 14:30 - 15:30"
    "Freitag 16:00 - 17:00"],
-  :spacy.domain/schedule [],
-  :spacy.domain/facts [],
-  :crux.db/id #uuid "6c80dcd5-3d52-4635-9c15-fcfe4787ded2"}]
+  :spacy.domain/schedule []}]

@@ -56,15 +56,35 @@
      (crux/submit-tx node (for [doc (cons event new-facts)]
                             [:crux.tx/put doc])))))
 
+(def ^:private put-if-slug-absent
+  ::put-if-slug-absent)
+
+(defn- put-seeding-function! [node]
+  (let [fun '(fn [ctx doc]
+               (let [db (crux.api/db ctx)
+                     our-slug (::domain/slug doc)
+                     query {:find '[e]
+                            :where '[[e ::domain/slug slug]]
+                            :args [{'slug our-slug}]}
+                     found (crux.api/q db query)]
+                 (when (empty? found)
+                   [[:crux.tx/put doc]])))]
+    (crux/submit-tx node
+                    [[:crux.tx/put
+                      {:crux.db/id put-if-slug-absent
+                       :crux.db/fn fun}]])))
+
 (defn- maybe-seed! [node]
   (when-let [events (some->> (io/resource "seeds.edn")
                              slurp
                              edn/read-string
                              (map maybe-add-crux-id))]
+    (put-seeding-function! node)
     (doseq [event events]
       (assert (s/valid? ::domain/event event)
               (s/explain-str ::domain/event event))
-      (crux/submit-tx node [[:crux.tx/put event]]))))
+      (crux/submit-tx node
+                      [[:crux.tx/fn put-if-slug-absent event]]))))
 
 
 (defn- interpret [crux-event]

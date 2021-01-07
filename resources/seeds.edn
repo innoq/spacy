@@ -1,18 +1,6 @@
 [{:spacy.domain/slug "februar-2021-event",
   :spacy.domain/name "Februar 2021 Event",
-  :spacy.domain/waiting-queue
-  [#:spacy.domain{:sponsor "nobody",
-                  :session
-                  #:spacy.domain{:id
-                                 #uuid "b6db3b74-9c08-462d-b19f-a41b8c30d2df",
-                                 :title "Integration",
-                                 :description "Test"}}
-   #:spacy.domain{:sponsor "nobody",
-                  :session
-                  #:spacy.domain{:id
-                                 #uuid "76a98a4f-b110-4d72-ab09-ac6537f36b68",
-                                 :title "Integration",
-                                 :description "Test"}}],
+  :spacy.domain/waiting-queue [],
   :spacy.domain/rooms
   ["Berlin"
    "Monheim"

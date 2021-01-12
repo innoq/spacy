@@ -44,13 +44,13 @@
       :move-session.session-to-move "Ausgewähltes Thema"
       :new-session.no-display-name.1 "Wir freuen uns, dass Du dabei bist! Bitte "
       :new-session.no-display-name.link "setze einen Anzeigename"
-      :new-session.no-display-name.2 " bevor Du dein erstes Thema vorschlägst."
+      :new-session.no-display-name.2 ", bevor Du dein erstes Thema vorschlägst."
       :new-session.submit "Thema vorschlagen"
       :notifications.msg.session-suggested ["Dein Thema \"" [:span {:data-slot "title"}] "\" wurde empfangen und ist jetzt in der Warteschlange."]
       :notifications.msg.session-scheduled ["Das Thema \"" [:span {:data-slot "title"}] "\" von " [:span {:data-slot "sponsor"}] " findet am "
                                             [:span {:data-slot "time"}] " im Raum " [:span {:data-slot "room"}] " statt."]
-      :notifications.msg.session-moved ["Das Thema \"" [:span {:data-slot "title"}] "\" von " [:span {:data-slot "sponsor"}] " wird jetzt im Raum "
-                                        [:span {:data-slot "room"}] " am " [:span {:data-slot "time"}] " stattfinden."]
+      :notifications.msg.session-moved ["Das Thema \"" [:span {:data-slot "title"}] "\" von " [:span {:data-slot "sponsor"}] " wird jetzt
+                                        am " [:span {:data-slot "time"}] " im Raum " [:span {:data-slot "room"}] " stattfinden."]
       :queue.heading "Warteschlange"
       :session.title "Titel"
       :session.delete "Löschen"
@@ -58,5 +58,5 @@
       :session.move "Umziehen"
       :sessions.heading "Zeitplan"
       :up-next.status.up-next ["Du bist als nächstes dran! Bitte  " [:a {:href "#sessions"} " wähle einen Zeitslot"] " für dein Thema \"" [:span {:data-slot "title"}] "\"."]
-      :up-next.status.please-wait "Bitte warte während die anderen ihren Themen präsentieren."
-      :up-next.status.nobody-in-queue "Es gibt aktuell keinen Themen in der Warteschlange"}}
+      :up-next.status.please-wait "Bitte warte, während die anderen ihre Themen präsentieren."
+      :up-next.status.nobody-in-queue "Es gibt aktuell keine Themen in der Warteschlange"}}

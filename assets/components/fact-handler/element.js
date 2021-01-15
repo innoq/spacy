@@ -12,7 +12,9 @@ export class FactHandler extends HTMLElement {
     const data = JSON.parse(event.data);
     const fact = data["spacy.domain/fact"];
 
-    this.dispatchEvent(new CustomEvent(fact, { detail: data, bubbles: true }));
+    if (fact) {
+      this.dispatchEvent(new CustomEvent(fact, { detail: data, bubbles: true }));
+    }
   }
 
   get sseUri() {

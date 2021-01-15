@@ -3,6 +3,7 @@
    [clojure.tools.logging :as log]
    [clojure.walk :as walk]
    [clojure.core.async :as async]
+   [clojure.string :as string]
    [cheshire.core :as json]
    [bidi.bidi :as bidi]
    [net.cgrand.enlive-html :as html]
@@ -104,6 +105,16 @@
   [:ol [:li]] (html/clone-for [s waiting-queue]
                               [:li] (html/content (session-snippet event s current-user))))
 
+(defn- strip-non-alphanumeric [s]
+  (string/replace s #"[^A-Za-z0-9]" ""))
+
+(defn- idgen [& strs]
+  (string/join "-"
+               (map strip-non-alphanumeric strs)))
+
+(defn- slot-id [room time]
+  (idgen "slot" room time))
+
 (html/defsnippet schedule-session-snippet "templates/event/commands.html"
   [(html/attr= :data-command "schedule-session")]
   [{::domain/keys [slug]}
@@ -114,8 +125,8 @@
   [(html/attr= :name "id")] (html/set-attr :value (::domain/id session))
   [(html/attr= :name "room")] (html/set-attr :value room)
   [(html/attr= :name "time")] (html/set-attr :value time)
-  [(html/attr? :room)] (html/set-attr :room room)
-  [(html/attr? :time)] (html/set-attr :time time))
+  [(html/attr? :aria-describedby)] (html/set-attr :aria-describedby (slot-id room time)))
+
 
 (html/defsnippet bulletin-board-snippet "templates/event/bulletin-board.html"
   [:bulletin-board]
@@ -130,9 +141,13 @@
                                         [:td] (html/clone-for [r rooms]
                                                               [:td] (html/set-attr :data-time t
                                                                                    :data-room r)
+                                                              [(html/attr? :room)] (html/set-attr :room r)
+                                                              [(html/attr? :time)] (html/set-attr :time t)
+                                                              [:slot-description]  (html/set-attr :id (slot-id r t))
                                                               [:td] (html/append (let [s (domain/find-session-for-slot event r t)]
                                                                                    (when s
                                                                                      (session-snippet event s current-user :move-action? true))))
+                                                              [:.session] (html/set-attr :aria-describedby (slot-id r t))
                                                               [:td] (html/append (action event current-user active-session r t)))))
 
 (defn schedule-session-action [event current-user session room time]
@@ -193,8 +208,7 @@
   [(html/attr= :name "id")] (html/set-attr :value (::domain/id session))
   [(html/attr= :name "room")] (html/set-attr :value room)
   [(html/attr= :name "time")] (html/set-attr :value time)
-  [(html/attr= :data-slot "room")] (html/content room)
-  [(html/attr= :data-slot "time")] (html/content time))
+  [(html/attr? :aria-describedby)] (html/set-attr :aria-describedby (slot-id room time)))
 
 (defn move-session-action [event current-user session room time]
   (when (and session (domain/is-open-slot? event room time))

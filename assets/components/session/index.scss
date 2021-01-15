@@ -10,8 +10,25 @@
     margin-top: $spacer-xxs;
   }
 
+  dl {
+    display: flex;
+    font-size: $font-size-sm;
+    font-style: italic;
+    margin-bottom: 0;
+
+    dt {
+      &::after {
+        content: ":";
+      }
+    }
+
+    dd {
+      margin-left: $spacer-xs;
+    }
+  }
+
   .toolbar {
-    margin-top: $spacer-xs;
+    margin-top: $spacer-sm;
     display: flex;
     gap: $spacer-xxs;
   }

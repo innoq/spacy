@@ -25,6 +25,8 @@
       :session.delete "Delete Session"
       :session.description "Description"
       :session.move "Move Session"
+      :session.schedule "Schedule session"
+      :session.sponsor "Sponsor"
       :sessions.heading "Sessions"
       :up-next.status.up-next ["You are currently next in line! Please " [:a {:href "#sessions"} "select a slot"] " for your session \"" [:span {:data-slot "title"}] "\""]
       :up-next.status.please-wait "Please wait for others to present their session"
@@ -56,6 +58,8 @@
       :session.delete "Löschen"
       :session.description "Beschreibung"
       :session.move "Umziehen"
+      :session.schedule "Zeitslot auswählen"
+      :session.sponsor "Sponsor"
       :sessions.heading "Zeitplan"
       :up-next.status.up-next ["Du bist als nächstes dran! Bitte  " [:a {:href "#sessions"} " wähle einen Zeitslot"] " für dein Thema \"" [:span {:data-slot "title"}] "\"."]
       :up-next.status.please-wait "Bitte warte, während die anderen ihre Themen präsentieren."

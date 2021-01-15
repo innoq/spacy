@@ -18,14 +18,14 @@
       </user-notifications>
       <hijax-form>
           <form method="POST" action>
-              <label>
+              <label for="title">
                   <msg key="session.title"></msg>
-                  <input type="text" name="title" required>
               </label>
-              <label>
+              <input id="title" type="text" name="title" required>
+              <label for="description">
                   <msg key="session.description"></msg>
-                  <textarea name="description" required></textarea>
               </label>
+              <textarea id="description" name="description" required></textarea>
               <button type="submit"><msg key="new-session.submit"></msg></button>
           </form>
       </hijax-form>

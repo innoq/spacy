@@ -3,6 +3,10 @@ bulletin-board {
     @extend %button-secondary;
   }
 
+  .help {
+    margin-bottom: $spacer-sm;
+  }
+
   table {
     border: 1px solid $gray-500;
     padding: $spacer-sm;

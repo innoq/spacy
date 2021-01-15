@@ -1,6 +1,6 @@
 {:en {:lang "en"
       :commands.schedule-session.action "Choose slot"
-      :commands.move-session.action "Move to slot"
+      :commands.move-session.action "Choose slot"
       :commands.actions.room-time "Room ${room}, Time ${time}"
       :login.h1 "Set your display name"
       :login.help "Let us know the display name that you want to use for submitting sessions!"
@@ -28,6 +28,8 @@
       :session.schedule "Schedule session"
       :session.sponsor "Sponsor"
       :sessions.heading "Sessions"
+      :sessions.schedule.help "Choose a time and room for your session \"${title}\" by selecting a slot within the following schedule."
+      :sessions.schedule.help.a11y "You can find open slots by iterating through the table. Slots which are available will have a \"Choose Slot\" action."
       :up-next.status.up-next ["You are currently next in line! Please " [:a {:href "#sessions"} "select a slot"] " for your session \"" [:span {:data-slot "title"}] "\""]
       :up-next.status.please-wait "Please wait for others to present their session"
       :up-next.status.nobody-in-queue "There are currently no sessions in the queue"}
@@ -61,6 +63,8 @@
       :session.schedule "Zeitslot auswählen"
       :session.sponsor "Sponsor"
       :sessions.heading "Zeitplan"
+      :sessions.schedule.help "Wähle eine Zeit und Raum für dein Thema \"${title}\" innerhalb des folgenden Zeitplans."
+      :sessions.schedule.help.a11y "Du kannst offene Zeitslots finden, indem du durch die Tabelle iterierst. Zeitslots, die verfügbar sind, werden eine \"Slot wählen\" Schaltfläche haben."
       :up-next.status.up-next ["Du bist als nächstes dran! Bitte  " [:a {:href "#sessions"} " wähle einen Zeitslot"] " für dein Thema \"" [:span {:data-slot "title"}] "\"."]
       :up-next.status.please-wait "Bitte warte, während die anderen ihre Themen präsentieren."
       :up-next.status.nobody-in-queue "Es gibt aktuell keine Themen in der Warteschlange"}}

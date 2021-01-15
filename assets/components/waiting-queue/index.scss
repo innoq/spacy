@@ -20,6 +20,16 @@ waiting-queue {
         margin-bottom: $spacer-xs;
         display: block;
       }
+
+      [hidden] {
+        display: block;
+      }
+
+      @media (min-width: $breakpoint-desktop-up) {
+        [hidden] {
+          @include visually-hidden();
+        }
+      }
     }
   }
 }

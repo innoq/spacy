@@ -4,29 +4,35 @@
     <bulletin-board>
       <h2 id="sessions"><msg key="sessions.heading"></msg></h2>
       <div class="schedule">
-          <div class="horizontal-scroll">
-            <!-- The redundant roles are because when we style the table using CSS grid on
-            mobile, assistive technologies may no longer realize that it is a table. -->
-            <table role="table">
-                <thead role="rowgroup">
-                    <tr role="row">
-                        <th scole="col" role="columnheader">
-                          <span class="visually-hidden">Times</span>
-                        </th>
-                        <th scope="col" role="columnheader"></th>
-                    </tr>
-                </thead>
-                <tbody role="rowgroup">
-                  <tr role="row" role="row">
-                    <th scope="row" role="rowheader"></th>
-                    <td role="cell">
-                      <slot-description class="visually-hidden" id>
-                        <msg key="commands.actions.room-time" room time></msg>
-                      </slot-description>
-                    </td>
+        <p class="help">
+          <msg key="sessions.schedule.help" title="Foo"></msg>
+          <span class="visually-hidden">
+            <msg key="sessions.schedule.help.a11y"></msg>
+          </span>
+        </p>
+        <div class="horizontal-scroll">
+          <!-- The redundant roles are because when we style the table using CSS grid on
+          mobile, assistive technologies may no longer realize that it is a table. -->
+          <table role="table">
+              <thead role="rowgroup">
+                  <tr role="row">
+                      <th scole="col" role="columnheader">
+                        <span class="visually-hidden">Times</span>
+                      </th>
+                      <th scope="col" role="columnheader"></th>
                   </tr>
-                </tbody>
-            </table>
+              </thead>
+              <tbody role="rowgroup">
+                <tr role="row" role="row">
+                  <th scope="row" role="rowheader"></th>
+                  <td role="cell">
+                    <slot-description class="visually-hidden" id>
+                      <msg key="commands.actions.room-time" room time></msg>
+                    </slot-description>
+                  </td>
+                </tr>
+              </tbody>
+          </table>
         </div>
       </div>
       <template>

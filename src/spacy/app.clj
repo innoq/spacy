@@ -127,12 +127,13 @@
   [(html/attr= :name "time")] (html/set-attr :value time)
   [(html/attr? :aria-describedby)] (html/set-attr :aria-describedby (slot-id room time)))
 
-
 (html/defsnippet bulletin-board-snippet "templates/event/bulletin-board.html"
   [:bulletin-board]
   [{::domain/keys [schedule rooms times slug] :as event} current-user
    & {:keys [action active-session page-link]}]
   [:h-include] (html/set-attr :src page-link)
+  [:.help] (fn [node] (when active-session node))
+  [(html/attr? :title)] (html/set-attr :title (get-in active-session [::domain/session ::domain/title]))
   [:table :thead [(html/attr= :scope "col")]] (html/clone-for [r rooms]
                                                            [:th] (html/content r))
   [:table :tbody [:tr]] (html/clone-for [t times]

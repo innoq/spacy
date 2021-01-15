@@ -258,7 +258,7 @@
    :redirect-to event-path))
 
 (defn sse-for-event [{{:keys [mult-channel]} :fact-channel}]
-  (handler-util/sse-stream mult-channel (map json/generate-string)))
+  (handler-util/sse-stream mult-channel json/generate-string))
 
 (def handler-map
   "Map route identifies to handler creator functions.

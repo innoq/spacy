@@ -6,7 +6,10 @@
    [yada.yada :as yada]
    [spacy.domain :as domain]
    [spacy.access :as access]
-   [spacy.data :as data]))
+   [spacy.data :as data]
+   [chime.core :as chime]
+   [chime.core-async :as chime-async])
+  (:import [java.time Instant Duration]))
 
 (defn handler-creator
   "Create a function which will retrieve the correct handler from the handler-map
@@ -80,7 +83,16 @@
                          (data/persist! data outcome)
                          (redirect ctx (redirect-to slug))))))}}})))
 
-(defn sse-stream [channel xform]
+(defn chimes
+  "Creates a core.async channel which will 'chime' at intervals
+  specified by `duration`. Optionally supply a `transform-fn`"
+  ([duration] (chimes duration identity))
+  ([duration transform-fn]
+   (chime-async/chime-ch
+    (chime/periodic-seq (Instant/now) duration)
+    {:ch (async/chan 1 (map transform-fn))})))
+
+(defn sse-stream [channel transform-fn]
   (yada/handler
    (yada/resource
     {:access-control access/control
@@ -88,8 +100,10 @@
      {:get
       {:produces {:media-type "text/event-stream"}
        :response (fn [{:keys [response]}]
-                   (let [ch (async/chan 256 xform)]
+                   (let [ch (async/chan 256 (map transform-fn))
+                         chimes (chimes (Duration/ofSeconds 15) (constantly :keepalive))]
                      (async/tap channel ch)
+                     (async/tap (async/mult chimes) ch)
                      (-> response
                          (assoc-in [:headers "X-Accel-Buffering"] "no") ;; Turn off buffering in NGINX proxy for SSE
                          (assoc :body ch))))}}})))

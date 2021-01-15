@@ -20,6 +20,7 @@
    [org.postgresql/postgresql "42.2.18"]
    [buddy/buddy-sign "3.2.0"]
    [javax.xml.bind/jaxb-api "2.4.0-b180830.0359"]
+   [jarohen/chime "0.3.2"]
    [org.tobereplaced/http-accept-headers "0.1.0"]]
   :repl-options {:init-ns user}
 

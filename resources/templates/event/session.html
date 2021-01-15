@@ -3,12 +3,17 @@
   <body>
     <div class="session" data-id aria-labelledby="title">
       <details>
-        <summary>
-            <span data-slot="title" id="title"></span> - <span data-slot="sponsor"></span>
-        </summary>
+        <summary data-slot="title" id="title"></summary>
         <span data-slot="description"></span>
       </details>
+      <dl>
+        <dt><msg key="session.sponsor"></msg></dt>
+        <dd><span data-slot="sponsor"></span></dd>
+      </dl>
       <div class="toolbar" is-sponsor>
+        <a href="#sessions" hidden>
+          <msg key="session.schedule"></msg>
+        </a>
         <hijax-form>
           <form data-command="delete-session" method="POST" action>
               <input type="hidden" name="id">

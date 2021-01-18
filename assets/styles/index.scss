@@ -38,7 +38,7 @@ small {
 label {
   display: block;
 }
-input, textarea {
+%input {
   font-family: $font-sans-serif;
   font-size: $font-size-base;
   display: block;
@@ -47,9 +47,12 @@ input, textarea {
   width: 100%;
   margin-top: $spacer-xxs;
 }
-label + label,
-label + button {
+%input + label,
+%input + button {
   margin-top: $spacer-xs;
+}
+input, textarea {
+  @extend %input;
 }
 
 @import "../components/bulletin-board/";

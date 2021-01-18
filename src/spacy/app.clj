@@ -74,8 +74,8 @@
 (html/defsnippet new-session-snippet "templates/event/new-session.html"
   [:new-session]
   [{::domain/keys [slug]} current-user]
-  [:form] (when (not= current-user "nobody")
-            (html/set-attr :action (bidi/path-for routes ::submit-session :event-slug slug)))
+  [:hijax-form] (when (not= current-user "nobody") identity)
+  [:form] (html/set-attr :action (bidi/path-for routes ::submit-session :event-slug slug))
   [:p :a] (html/set-attr :href (str (bidi/path-for routes ::login)
                                 "?redirect=" (bidi/path-for routes ::event :event-slug slug)))
   [:p] (when (= current-user "nobody") identity))

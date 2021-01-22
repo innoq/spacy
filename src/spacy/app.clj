@@ -145,11 +145,11 @@
                                                               [(html/attr? :room)] (html/set-attr :room r)
                                                               [(html/attr? :time)] (html/set-attr :time t)
                                                               [:slot-description]  (html/set-attr :id (slot-id r t))
-                                                              [:td] (html/append (let [s (domain/find-session-for-slot event r t)]
+                                                              [:td] (html/prepend (let [s (domain/find-session-for-slot event r t)]
                                                                                    (when s
                                                                                      (session-snippet event s current-user :move-action? true))))
                                                               [:.session] (html/set-attr :aria-describedby (slot-id r t))
-                                                              [:td] (html/append (action event current-user active-session r t)))))
+                                                              [:td] (html/prepend (action event current-user active-session r t)))))
 
 (defn schedule-session-action [event current-user session room time]
   (when (and (is-up-next? event current-user)

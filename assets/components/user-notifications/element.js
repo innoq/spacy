@@ -10,18 +10,17 @@ export class UserNotifications extends HTMLElement {
   }
 
   addNotification(ev) {
-    const sponsor = ev.detail["spacy.domain/sponsor"];
     const session = ev.detail["spacy.domain/session"];
     const notification = this.newNotification(ev.type);
 
     this.status.innerHTML = '';
 
-    if (!session || !this.notifyFor(sponsor) || !notification) {
+    if (!session || !this.notifyFor(ev.detail) || !notification) {
       return; // Add no notifications for things we don't understand
     }
 
     fillTemplate(notification, "title", session["spacy.domain/title"]);
-    fillTemplate(notification, "sponsor", sponsor);
+    fillTemplate(notification, "sponsor", ev.detail["spacy.domain/sponsor"]);
     fillTemplate(notification, "room", ev.detail["spacy.domain/room"]);
     fillTemplate(notification, "time", ev.detail["spacy.domain/time"]);
 
@@ -41,11 +40,14 @@ export class UserNotifications extends HTMLElement {
     return [...nodes].map(el => el.getAttribute("data-fact"));
   }
 
-  notifyFor(sponsor) {
+  notifyFor(fact) {
     if (this.hasAttribute("notify-all")) {
       return true;
     }
-    return sponsor === this.currentUser;
+    if (this.hasAttribute("notify-scheduled")) {
+      return fact["spacy.domain/room"] && fact["spacy.domain/time"];
+    }
+    return fact["spacy.domain/sponsor"] === this.currentUser;
   }
 
   newNotification(fact) {

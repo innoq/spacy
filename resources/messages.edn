@@ -17,6 +17,8 @@
       :notifications.msg.session-suggested ["Your session \"" [:span {:data-slot "title"}] "\" was received and placed in the queue."]
       :notifications.msg.session-scheduled ["The session \"" [:span {:data-slot "title"}] "\" from " [:span {:data-slot "sponsor"}] " will take place on "
                                             [:span {:data-slot "time"}] " in the " [:span {:data-slot "room"}] " room."]
+      :notifications.msg.session-deleted ["The session \"" [:span {:data-slot "title"}] "\" from " [:span {:data-slot "sponsor"}] " was removed and will no longer take place at "
+                                            [:span {:data-slot "time"}] " in the " [:span {:data-slot "room"}] " room."]
       :notifications.msg.session-moved ["The session \"" [:span {:data-slot "title"}] "\" from " [:span {:data-slot "sponsor"}] " will has moved to the "
                                         [:span {:data-slot "room"}] " room on " [:span {:data-slot "time"}] "."]
       :open-spaces "Open Spaces"
@@ -52,6 +54,8 @@
       :new-session.submit "Thema vorschlagen"
       :notifications.msg.session-suggested ["Dein Thema \"" [:span {:data-slot "title"}] "\" wurde empfangen und ist jetzt in der Warteschlange."]
       :notifications.msg.session-scheduled ["Das Thema \"" [:span {:data-slot "title"}] "\" von " [:span {:data-slot "sponsor"}] " findet am "
+                                            [:span {:data-slot "time"}] " im Raum " [:span {:data-slot "room"}] " statt."]
+      :notifications.msg.session-deleted ["Das Thema \"" [:span {:data-slot "title"}] "\" von " [:span {:data-slot "sponsor"}] " wurde entfernt und findet nicht mehr am "
                                             [:span {:data-slot "time"}] " im Raum " [:span {:data-slot "room"}] " statt."]
       :notifications.msg.session-moved ["Das Thema \"" [:span {:data-slot "title"}] "\" von " [:span {:data-slot "sponsor"}] " wird jetzt
                                         am " [:span {:data-slot "time"}] " im Raum " [:span {:data-slot "room"}] " stattfinden."]

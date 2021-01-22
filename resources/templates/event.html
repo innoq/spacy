@@ -22,7 +22,7 @@
             <up-next></up-next>
             <new-session id="new-session"></new-session>
             <bulletin-board id="sessions"></bulletin-board>
-            <user-notifications current-user role="status" aria-live="polite" notify-all>
+            <user-notifications current-user role="status" aria-live="polite" notify-scheduled>
                 <small></small>
 
                 <template data-fact="spacy.domain/session-scheduled">
@@ -33,6 +33,11 @@
                 <template data-fact="spacy.domain/session-moved">
                     <span role="region" aria-role="polite">
                         <msg key="notifications.msg.session-moved"></msg>
+                    </span>
+                </template>
+                <template data-fact="spacy.domain/session-deleted">
+                    <span role="region" aria-role="polite">
+                        <msg key="notifications.msg.session-deleted"></msg>
                     </span>
                 </template>
             </user-notifications>

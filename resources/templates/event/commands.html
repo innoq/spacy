@@ -1,23 +1,27 @@
 <!DOCTYPE html>
 <html lang="en">
   <body>
-    <hijax-form data-command="schedule-session">
-      <form method="POST" action>
-          <input type="hidden" name="id" value>
-          <input type="hidden" name="room" value>
-          <input type="hidden" name="time" value>
-          <button aria-describedby>
-            <msg key="commands.schedule-session.action"></msg>
-          </button>
+    <div role="group" data-command="schedule-session">
+      <hijax-form>
+        <form method="POST" action>
+            <input type="hidden" name="id" value>
+            <input type="hidden" name="room" value>
+            <input type="hidden" name="time" value>
+            <button type="submit" aria-describedby>
+              <msg key="commands.schedule-session.action"></msg>
+            </button>
+        </form>
+      </hijax-form>
+    </div>
+    <div role="group" data-command="move-session">
+      <form method="POST" data-command="move-session" action>
+        <input type="hidden" name="id" value>
+        <input type="hidden" name="room" value>
+        <input type="hidden" name="time" value>
+        <button type="submit" aria-describedby>
+          <msg key="commands.move-session.action"></msg>
+        </button>
       </form>
-    </hijax-form>
-    <form method="POST" data-command="move-session" action>
-      <input type="hidden" name="id" value>
-      <input type="hidden" name="room" value>
-      <input type="hidden" name="time" value>
-      <button aria-describedby>
-        <msg key="commands.move-session.action"></msg>
-      </button>
-    </form>
+    </div>
   </body>
 </html>

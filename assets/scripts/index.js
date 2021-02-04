@@ -1,7 +1,5 @@
-import "h-include/lib/h-include";
-
 import "../components/hijax-form";
-import "../components/bulletin-board";
+import "../components/slot-updater";
 import "../components/up-next";
 import "../components/user-notifications";
 import "../components/waiting-queue";

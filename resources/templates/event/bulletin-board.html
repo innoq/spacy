@@ -25,10 +25,13 @@
               <tbody role="rowgroup">
                 <tr role="row" role="row">
                   <th scope="row" role="rowheader"></th>
-                  <td role="cell">
-                    <slot-description class="visually-hidden" id>
-                      <msg key="commands.actions.room-time" room time></msg>
-                    </slot-description>
+                  <td role="cell" data-room data-time>
+                    <slot-updater data-room data-time>
+                      <slot-description class="visually-hidden" id>
+                        <msg key="commands.actions.room-time" room time></msg>
+                      </slot-description>
+                      <template></template>
+                    </slot-updater>
                   </td>
                 </tr>
               </tbody>

@@ -1,6 +1,14 @@
 import { createSession, extractSession } from "../session";
 import { removeNode } from "uitil/dom";
 
+export function firstInQueue() {
+  const queue = document.querySelector("waiting-queue");
+
+  if (queue.list.children.length) {
+    return extractSession(queue.list.children[0]);
+  }
+}
+
 export class WaitingQueue extends HTMLElement {
   connectedCallback() {
     if (!this.list) {
@@ -15,11 +23,12 @@ export class WaitingQueue extends HTMLElement {
   addQueuedSession(ev) {
     const sponsor = ev.detail["spacy.domain/sponsor"];
     const session = ev.detail["spacy.domain/session"];
+
     if (!sponsor || !session) {
       console.error("Could not find session to add to queue.");
       return;
     }
-    const element = createSession(sponsor, session, "li");
+    const element = createSession(sponsor, session, { parentWrapper: "li" });
 
     this.list.appendChild(element);
 

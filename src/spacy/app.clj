@@ -140,16 +140,17 @@
                                         [:tr] (html/set-attr :data-time t)
                                         [:th] (html/content t)
                                         [:td] (html/clone-for [r rooms]
-                                                              [:td] (html/set-attr :data-time t
-                                                                                   :data-room r)
+                                                              [(html/attr? :data-time)] (html/set-attr :data-time t
+                                                                                                       :data-room r)
                                                               [(html/attr? :room)] (html/set-attr :room r)
                                                               [(html/attr? :time)] (html/set-attr :time t)
                                                               [:slot-description]  (html/set-attr :id (slot-id r t))
-                                                              [:td] (html/prepend (let [s (domain/find-session-for-slot event r t)]
+                                                              [:slot-updater] (html/prepend (let [s (domain/find-session-for-slot event r t)]
                                                                                    (when s
                                                                                      (session-snippet event s current-user :move-action? true))))
                                                               [:.session] (html/set-attr :aria-describedby (slot-id r t))
-                                                              [:td] (html/prepend (action event current-user active-session r t)))))
+                                                              [:slot-updater] (html/prepend (action event current-user active-session r t))
+                                                              [:template] (html/content (schedule-session-snippet event {::domain/session {::domain/id "id"}} r t)))))
 
 (defn schedule-session-action [event current-user session room time]
   (when (and (is-up-next? event current-user)
@@ -168,7 +169,7 @@
                                                              :active-session (domain/next-up event)
                                                              :page-link (bidi/path-for routes ::event :event-slug slug)))
   [:waiting-queue] (html/substitute (waiting-queue-snippet event current-user))
-  [:template#session-template] (html/content (session-snippet event {::domain/sponsor current-user} current-user))
+  [:template#session-template] (html/content (session-snippet event {::domain/sponsor current-user} current-user :move-action? true))
   [(html/attr? :current-user)] (html/set-attr :current-user current-user)
   [:fact-handler] (html/set-attr :uri (bidi/path-for routes ::sse :event-slug slug))
   [:msg] (messages/transformer messages))

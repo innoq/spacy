@@ -42,7 +42,11 @@
 (defn- add-event-id [event-id doc]
   (assoc doc ::belongs-to-event event-id))
 
-(defn- persist! [node {::domain/keys [facts event]}]
+(defn- replace!
+  "Stores the given event and facts iff the current event state in the database
+  is equal to old-state. This allows us to make sure there were no concurrent
+  writes."
+  [node old-state {::domain/keys [facts event]}]
   (assert (s/valid? ::domain/event event)
           (s/explain-str ::domain/event event))
   (assert (s/valid? ::domain/facts facts)
@@ -50,11 +54,40 @@
   (let [event-id (:crux.db/id event)
         new-facts (->> facts
                        (map (partial add-event-id event-id))
-                       (map maybe-add-crux-id))]
-    (crux/await-tx
-     node
-     (crux/submit-tx node (for [doc (cons event new-facts)]
-                            [:crux.tx/put doc])))))
+                       (map maybe-add-crux-id))
+        tx (crux/submit-tx node (cons
+                                 [:crux.tx/match event-id old-state]
+                                 (for [doc (cons event new-facts)]
+                                   [:crux.tx/put doc])))]
+    (crux/await-tx node tx)
+    (if-not (crux/tx-committed? node tx)
+      {::error ::concurrent-writes})))
+
+(def ^:private retries 5)
+
+(defn- wait-after-attempt [attempt]
+  {:pre [(<= 0 attempt retries)]}
+  (Thread/sleep (rand (* 100 (+ 2 attempt)))))
+
+(defn- retry-with-breaks
+  "Invokes f with increasing numbers as long as f returns false.
+  Waits for a random period between calls to f."
+  [f]
+  (some (fn [attempt]
+          (or (f attempt)
+              (wait-after-attempt attempt)))
+        (range retries)))
+
+(defn- update!
+  "Applies f to the event with a given slug and tries to store it.
+  Retries a limited number of times in case of races with other writes."
+  [node slug f]
+  (or (retry-with-breaks (fn [attempt]
+                           (let [db (crux.api/db node)
+                                 event (fetch db slug)]
+                             (if (nil? (::error (replace! node event (f event))))
+                               :ok))))
+      (throw (ex-info "Concurrent writes" {::reason ::mismatch}))))
 
 (def ^:private put-if-slug-absent
   ::put-if-slug-absent)
@@ -145,8 +178,8 @@
   (all-slugs [component]
     (all-slugs (crux/db node)))
 
-  (persist! [component outcome]
-    (persist! node outcome)))
+  (update! [component slug f]
+    (update! node slug f)))
 
 (defmethod clojure.core/print-method Crux
   [system ^java.io.Writer writer]

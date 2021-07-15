@@ -75,13 +75,18 @@
                    (let [current-user (access/current-user ctx)
                          slug (get-in ctx [:parameters :path :event-slug])
                          params (get-in ctx [:parameters :form])
-                         state (data/fetch data slug)
-                         outcome (command state current-user params)]
-                     (if (::domain/error outcome)
-                       (bad-request ctx)
-                       (do
-                         (data/persist! data outcome)
-                         (redirect ctx (redirect-to slug))))))}}})))
+                         modify (fn [state]
+                                  (let [outcome (command state current-user params)]
+                                    (if-let [err (::domain/error outcome)]
+                                      (throw (ex-info "Domain error"
+                                                      {:error err}))
+                                       outcome)))]
+                     (try
+                       (data/update! data slug modify)
+                       (redirect ctx (redirect-to slug))
+                       (catch Exception ex
+                         (log/error ex "failed to update!")
+                         (bad-request ctx)))))}}})))
 
 (defn chimes
   "Creates a core.async channel which will 'chime' at intervals

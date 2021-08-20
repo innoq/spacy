@@ -63,7 +63,7 @@
     (if-not (crux/tx-committed? node tx)
       {::error ::concurrent-writes})))
 
-(def ^:private retries 5)
+(def ^:private retries 10)
 
 (defn- wait-after-attempt [attempt]
   {:pre [(<= 0 attempt retries)]}

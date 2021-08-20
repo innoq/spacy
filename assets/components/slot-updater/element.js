@@ -11,7 +11,11 @@ export class SlotUpdater extends HTMLElement {
   }
 
   upNext(ev) {
-    this.appendAction(ev.detail);
+    if (ev.detail === "spacy.ui/nobody-in-queue") {
+      this.clearAction();
+    } else {
+      this.appendAction(ev.detail);
+    }
   }
 
   addScheduledSession(ev) {

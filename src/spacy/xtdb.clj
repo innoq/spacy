@@ -1,5 +1,5 @@
-(ns spacy.crux
-  (:require [crux.api :as crux]
+(ns spacy.xtdb
+  (:require [xtdb.api :as xt]
             [clojure.java.io :as io]
             [clojure.edn :as edn]
             [clojure.pprint :refer [pprint]]
@@ -14,26 +14,26 @@
   (java.util.UUID/randomUUID))
 
 (defn with-crux-id [doc]
-  (assoc doc :crux.db/id (random-uuid)))
+  (assoc doc :xt/id (random-uuid)))
 
 (defn- maybe-add-crux-id [doc]
-  (if (:crux.db/id doc)
+  (if (:xt/id doc)
     doc
     (with-crux-id doc)))
 
 (defn- fetch [db slug]
-  (let [eid (ffirst (crux/q db
-                            {:find '[e]
-                             :where '[[e ::domain/slug slug]]
-                             :args [{'slug slug}]}))
-        event (crux/entity db eid)]
+  (let [eid (ffirst (xt/q db
+                          {:find '[e]
+                           :where '[[e ::domain/slug slug]]
+                           :args [{'slug slug}]}))
+        event (xt/entity db eid)]
     (assert (s/valid? ::domain/event event)
             (s/explain-str ::domain/event event))
     event))
 
 
 (defn- all-slugs [db]
-  (let [found (crux/q db
+  (let [found (xt/q db
                       {:find '[name slug]
                        :where '[[e ::domain/slug slug]
                                 [e ::domain/name name]]})]
@@ -51,16 +51,16 @@
           (s/explain-str ::domain/event event))
   (assert (s/valid? ::domain/facts facts)
           (s/explain-str ::domain/facts facts))
-  (let [event-id (:crux.db/id event)
+  (let [event-id (:xt/id event)
         new-facts (->> facts
                        (map (partial add-event-id event-id))
                        (map maybe-add-crux-id))
-        tx (crux/submit-tx node (cons
-                                 [:crux.tx/match event-id old-state]
+        tx (xt/submit-tx node (cons
+                                 [::xt/match event-id old-state]
                                  (for [doc (cons event new-facts)]
-                                   [:crux.tx/put doc])))]
-    (crux/await-tx node tx)
-    (if-not (crux/tx-committed? node tx)
+                                   [::xt/put doc])))]
+    (xt/await-tx node tx)
+    (if-not (xt/tx-committed? node tx)
       {::error ::concurrent-writes})))
 
 (def ^:private retries 10)
@@ -83,7 +83,7 @@
   Retries a limited number of times in case of races with other writes."
   [node slug f]
   (or (retry-with-breaks (fn [attempt]
-                           (let [db (crux.api/db node)
+                           (let [db (xt/db node)
                                  event (fetch db slug)]
                              (if (nil? (::error (replace! node event (f event))))
                                :ok))))
@@ -94,18 +94,18 @@
 
 (defn- put-seeding-function! [node]
   (let [fun '(fn [ctx doc]
-               (let [db (crux.api/db ctx)
+               (let [db (xtdb.api/db ctx)
                      our-slug (::domain/slug doc)
                      query {:find '[e]
                             :where '[[e ::domain/slug slug]]
                             :args [{'slug our-slug}]}
-                     found (crux.api/q db query)]
+                     found (xtdb.api/q db query)]
                  (when (empty? found)
-                   [[:crux.tx/put doc]])))]
-    (crux/submit-tx node
-                    [[:crux.tx/put
-                      {:crux.db/id put-if-slug-absent
-                       :crux.db/fn fun}]])))
+                   [[::xt/put doc]])))]
+    (xt/submit-tx node
+                    [[::xt/put
+                      {:xt/id put-if-slug-absent
+                       :xt/fn fun}]])))
 
 (defn- maybe-seed! [node]
   (when-let [events (some->> (io/resource "seeds.edn")
@@ -116,22 +116,22 @@
     (doseq [event events]
       (assert (s/valid? ::domain/event event)
               (s/explain-str ::domain/event event))
-      (crux/submit-tx node
-                      [[:crux.tx/fn put-if-slug-absent event]]))))
+      (xt/submit-tx node
+                      [[::xt/fn put-if-slug-absent event]]))))
 
 
 (defn- interpret [crux-event]
-  (let [ops (:crux/tx-ops crux-event)
+  (let [ops (::xt/tx-ops crux-event)
         facts (for [[op doc] ops
-                    :when (and (= op :crux.tx/put)
+                    :when (and (= op ::xt/put)
                                (:spacy.domain/fact doc))]
-                (dissoc doc :crux.db/id))]
+                (dissoc doc :xt/id))]
     facts))
 
 (defn- subscribe! [node fact-channel]
   {:pre [(:channel fact-channel)]}
-  (crux/listen node
-               {:crux/event-type :crux/indexed-tx, :with-tx-ops? true}
+  (xt/listen node
+               {::xt/event-type ::xt/indexed-tx, :with-tx-ops? true}
                (fn [ev]
                  (let [facts (interpret ev)
                        ch (:channel fact-channel)]
@@ -140,24 +140,24 @@
 
 (defn- dialect [db-spec]
   (case (:dbtype db-spec)
-    "sqlite" {:crux/module 'crux.jdbc.sqlite/->dialect}
-    "postgres" {:crux/module 'crux.jdbc.psql/->dialect}))
+    "sqlite" {:xtdb/module 'xtdb.jdbc.sqlite/->dialect}
+    "postgres" {:xtdb/module 'xtdb.jdbc.psql/->dialect}))
 
 (defn- opts [{:keys [db-spec]}]
   {:pre [(map? db-spec)]}
-  {:crux.jdbc/connection-pool {:dialect (dialect db-spec)
+  {:xtdb.jdbc/connection-pool {:dialect (dialect db-spec)
                                :pool-opts {}
                                :db-spec db-spec}
-   :crux/tx-log {:crux/module 'crux.jdbc/->tx-log
-                 :connection-pool :crux.jdbc/connection-pool}
-   :crux/document-store {:crux/module 'crux.jdbc/->document-store
-                         :connection-pool :crux.jdbc/connection-pool}})
+   :xtdb/tx-log {:xtdb/module 'xtdb.jdbc/->tx-log
+                 :connection-pool :xtdb.jdbc/connection-pool}
+   :xtdb/document-store {:xtdb/module 'xtdb.jdbc/->document-store
+                         :connection-pool :xtdb.jdbc/connection-pool}})
 
-(defrecord Crux [config node listener]
+(defrecord XT [config node listener]
   component/Lifecycle
   (start [component]
     (log/debug "Starting" component)
-    (let [node (crux/start-node (opts config))]
+    (let [node (xt/start-node (opts config))]
       (maybe-seed! node)
       (assoc component
              :listener (subscribe! node (:fact-channel component))
@@ -173,14 +173,14 @@
 
   data/Events
   (fetch [component slug]
-    (fetch (crux/db node) slug))
+    (fetch (xt/db node) slug))
 
   (all-slugs [component]
-    (all-slugs (crux/db node)))
+    (all-slugs (xt/db node)))
 
   (update! [component slug f]
     (update! node slug f)))
 
-(defmethod clojure.core/print-method Crux
+(defmethod clojure.core/print-method XT
   [system ^java.io.Writer writer]
-  (.write writer "#<Crux>"))
+  (.write writer "#<XT>"))

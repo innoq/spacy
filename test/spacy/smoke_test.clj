@@ -20,7 +20,7 @@
 
 (deftest integration-test
   (let [system (-> {:webserver {:port port}
-                    :crux {:db-spec {:dbtype "sqlite"
+                    :xtdb {:db-spec {:dbtype "sqlite"
                                      :dbname dbname}}}
                    (sys/system)
                    (component/start))]

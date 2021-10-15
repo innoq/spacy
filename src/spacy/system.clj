@@ -6,7 +6,7 @@
    [modular.bidi :refer (new-router new-web-resources)]
    [modular.aleph :refer (new-webserver)]
    [spacy.config :as config]
-   [spacy.crux :as crux]
+   [spacy.xtdb :as xtdb]
    [spacy.app :as app]))
 
 (defn webserver [{:keys [port]}]
@@ -14,7 +14,7 @@
   (new-webserver :port port))
 
 (defn new-data [config]
-  (crux/map->Crux {:config config}))
+  (xtdb/map->XT {:config config}))
 
 (defrecord FactChannel [channel mult-channel]
   component/Lifecycle
@@ -33,7 +33,7 @@
   (component/system-map
    :fact-channel (new-fact-channel)
    :data (component/using
-           (new-data (config/crux config))
+           (new-data (config/xtdb config))
            [:fact-channel])
    :app (component/using
          (app/new-app)

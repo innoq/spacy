@@ -1,6 +1,6 @@
 ;; This uses https://github.com/juxt/aero
 {:webserver {:port 9215}
- :crux {:db-spec #profile {:dev {:dbtype "sqlite"
+ :xtdb {:db-spec #profile {:dev {:dbtype "sqlite"
                                  :dbname "dev.db"}
                            :prod {:dbtype "sqlite"
                                   :dbname "prod.db"}}}

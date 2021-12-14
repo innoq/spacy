@@ -28,6 +28,10 @@ export class WaitingQueue extends HTMLElement {
       console.error("Could not find session to add to queue.");
       return;
     }
+    if (this.sessionEntry(session["spacy.domain/id"])) {
+      console.error("Queue: Ignoring duplicate session received:", session["spacy.domain/id"]);
+      return;
+    }
     const element = createSession(sponsor, session, { parentWrapper: "li" });
 
     this.list.appendChild(element);

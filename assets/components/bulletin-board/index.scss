@@ -9,11 +9,18 @@ bulletin-board {
 
   table {
     border: 1px solid $gray-500;
-    padding: $spacer-sm;
+  }
 
-    td {
-      padding: $spacer-base $spacer-xs;
-    }
+  thead {
+    background-color: $gray-200;
+  }
+
+  thead th:first-child {
+    font-style: italic;
+  }
+
+  td, th {
+    padding: $spacer-base $spacer-xs;
   }
 
   hijax-form {
@@ -54,6 +61,7 @@ bulletin-board {
 
         td {
           padding: $spacer-sm;
+          border-bottom: 1px dashed $gray-300;
 
           &::before {
             content: attr(data-room);
@@ -63,6 +71,11 @@ bulletin-board {
             margin-bottom: $spacer-xxs;
           }
         }
+
+        td:last-child {
+          border-bottom: none;
+        }
+
       }
     }
 

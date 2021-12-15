@@ -30,6 +30,7 @@
       :session.schedule "Schedule session"
       :session.sponsor "Sponsor"
       :sessions.heading "Sessions"
+      :sessions.schedule.heading "Time/Room"
       :sessions.schedule.help "Choose a time and room for your session \"${title}\" by selecting a slot within the following schedule."
       :sessions.schedule.help.a11y "You can find open slots by iterating through the table. Slots which are available will have a \"Choose Slot\" action."
       :up-next.status.up-next ["You are currently next in line! Please " [:a {:href "#sessions"} "select a slot"] " for your session \"" [:span {:data-slot "title"}] "\""]
@@ -67,6 +68,7 @@
       :session.schedule "Zeitslot auswählen"
       :session.sponsor "Sponsor"
       :sessions.heading "Zeitplan"
+      :sessions.schedule.heading "Zeit/Raum"
       :sessions.schedule.help "Wähle eine Zeit und Raum für dein Thema \"${title}\" innerhalb des folgenden Zeitplans."
       :sessions.schedule.help.a11y "Du kannst offene Zeitslots finden, indem du durch die Tabelle iterierst. Zeitslots, die verfügbar sind, werden eine \"Slot wählen\" Schaltfläche haben."
       :up-next.status.up-next ["Du bist als nächstes dran! Bitte  " [:a {:href "#sessions"} " wähle einen Zeitslot"] " für dein Thema \"" [:span {:data-slot "title"}] "\"."]

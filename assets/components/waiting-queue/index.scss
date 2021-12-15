@@ -9,6 +9,10 @@ waiting-queue {
   ol > li {
     margin: $spacer-xxs 0;
 
+    summary {
+      cursor: pointer;
+    }
+
     &:first-child {
       padding: $spacer-sm;
       border: 1px dashed black;

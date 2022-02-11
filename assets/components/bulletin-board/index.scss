@@ -45,12 +45,13 @@ bulletin-board {
 
         tr {
           display: grid;
+          gap: 1px;
           grid-column: 1/-1;
           grid-template-columns: repeat(auto-fill, minmax(12rem, auto));
           grid-template-columns: subgrid;
 
           border: 1px solid $gray-500;
-          background-color: white;
+          background-color: $gray-200;
           box-shadow: $box-shadow-lg;
           padding: $spacer-sm;
 
@@ -61,7 +62,7 @@ bulletin-board {
 
         td {
           padding: $spacer-sm;
-          border-bottom: 1px dashed $gray-300;
+          background-color: white;
 
           &::before {
             content: attr(data-room);
@@ -71,11 +72,6 @@ bulletin-board {
             margin-bottom: $spacer-xxs;
           }
         }
-
-        td:last-child {
-          border-bottom: none;
-        }
-
       }
     }
 

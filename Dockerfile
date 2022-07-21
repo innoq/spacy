@@ -10,7 +10,7 @@ RUN npm run compile
 
 # Get all backend dependencies
 
-FROM adoptopenjdk:11-jre-hotspot AS lein
+FROM eclipse-temurin:17-jre AS lein
 
 RUN useradd -m spacy
 USER spacy
@@ -28,7 +28,7 @@ RUN ./lein cp ./classpath
 
 # Build the target image
 
-FROM adoptopenjdk:11-jre-hotspot
+FROM eclipse-temurin:17-jre
 
 RUN useradd -m spacy
 USER spacy

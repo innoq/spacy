@@ -1,4 +1,4 @@
-(ns user
+(ns spacy.dev
   (:require [com.stuartsierra.component :as component]
             [clojure.tools.namespace.repl :refer (refresh)]
             [spacy.config :as config]

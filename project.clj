@@ -22,7 +22,7 @@
    [javax.xml.bind/jaxb-api "2.4.0-b180830.0359"]
    [jarohen/chime "0.3.3"]
    [org.tobereplaced/http-accept-headers "0.1.0"]]
-  :repl-options {:init-ns user}
+  :repl-options {:init-ns spacy.dev}
 
   :profiles {:dev {:dependencies [[org.clojure/tools.namespace "1.3.0"]
                                   [org.xerial/sqlite-jdbc "3.40.0.0"]]}})
